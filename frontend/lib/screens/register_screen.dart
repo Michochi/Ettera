@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../widgets/custom_text_field.dart';
+import '../widgets/custom_container.dart';
+import '../widgets/loading_indicator.dart';
+import '../widgets/app_theme.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -18,10 +22,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool loading = false;
   String? passwordError;
 
-  // Define brand colors (matching login screen)
-  static const Color primaryGold = Color(0xFFC4933F);
-  static const Color darkGray = Color(0xFF1D1D1D);
-  static const Color backgroundColor = Color(0xFFFFFBF5);
+  // Use AppTheme colors
+  static Color get primaryGold => AppTheme.primaryGold;
+  static Color get darkGray => AppTheme.darkGray;
+  static Color get backgroundColor => AppTheme.backgroundColor;
 
   void register() async {
     if (!_formKey.currentState!.validate()) return;
@@ -37,7 +41,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("Registration successful!")));
-        Navigator.pushReplacementNamed(context, '/login');
+        Navigator.pushReplacementNamed(context, '/');
       }
     } catch (e) {
       ScaffoldMessenger.of(
@@ -50,29 +54,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final inputDecoration = (String label) => InputDecoration(
-      labelText: label,
-      labelStyle: TextStyle(color: darkGray),
-      enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: primaryGold),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: primaryGold, width: 2),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.red.shade300),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.red.shade300, width: 2),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      errorStyle: const TextStyle(fontSize: 12, height: 0.8),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-    );
-
     return Scaffold(
       backgroundColor: backgroundColor,
       body: SingleChildScrollView(
@@ -88,19 +69,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   horizontal: 30,
                   vertical: 40,
                 ),
-                child: Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: darkGray.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
+                child: CustomContainer(
                   child: Form(
                     key: _formKey,
                     child: Column(
@@ -119,9 +88,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                         const SizedBox(height: 30),
-                        TextFormField(
+                        CustomTextField(
                           controller: nameController,
-                          decoration: inputDecoration("Name"),
+                          label: "Name",
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Name is required';
@@ -133,9 +102,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                         const SizedBox(height: 20),
-                        TextFormField(
+                        CustomTextField(
                           controller: emailController,
-                          decoration: inputDecoration("Email"),
+                          label: "Email",
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Email is required';
@@ -147,9 +116,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                         const SizedBox(height: 20),
-                        TextFormField(
+                        CustomTextField(
                           controller: passwordController,
-                          decoration: inputDecoration("Password"),
+                          label: "Password",
+                          obscureText: true,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Password is required';
@@ -159,12 +129,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             }
                             return null;
                           },
-                          obscureText: true,
                         ),
                         const SizedBox(height: 20),
-                        TextFormField(
+                        CustomTextField(
                           controller: confirmPasswordController,
-                          decoration: inputDecoration("Confirm Password"),
+                          label: "Confirm Password",
+                          obscureText: true,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please confirm your password';
@@ -174,7 +144,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             }
                             return null;
                           },
-                          obscureText: true,
                         ),
                         const SizedBox(height: 30),
                         SizedBox(
@@ -189,8 +158,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ),
                             child: loading
-                                ? const CircularProgressIndicator(
-                                    color: Colors.white,
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: LoadingIndicator(),
                                   )
                                 : const Text(
                                     "Register",

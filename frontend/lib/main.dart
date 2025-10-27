@@ -4,6 +4,7 @@ import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
 import 'providers/user_provider.dart';
+import 'widgets/app_theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,19 +19,13 @@ class MyApp extends StatelessWidget {
       create: (_) => UserProvider(),
       child: MaterialApp(
         title: 'Dating App',
-        theme: ThemeData(
-          primarySwatch: Colors.pink,
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Colors.pink,
-            foregroundColor: Colors.white,
-          ),
-        ),
+        theme: AppTheme.theme,
         debugShowCheckedModeBanner: false,
-        initialRoute: '/login',
+        initialRoute: '/',
         routes: {
+          '/': (context) => const HomeScreen(),
           '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
-          '/home': (context) => const HomeScreen(),
         },
       ),
     );
