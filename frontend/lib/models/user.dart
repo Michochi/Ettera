@@ -4,6 +4,9 @@ class User {
   final String email;
   final String? bio;
   final String? photoUrl;
+  final String? gender;
+  final DateTime? birthday;
+  final int? age;
 
   User({
     required this.id,
@@ -11,6 +14,9 @@ class User {
     required this.email,
     this.bio,
     this.photoUrl,
+    this.gender,
+    this.birthday,
+    this.age,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -20,6 +26,11 @@ class User {
       email: json['email'],
       bio: json['bio'],
       photoUrl: json['photoUrl'],
+      gender: json['gender'],
+      birthday: json['birthday'] != null
+          ? DateTime.parse(json['birthday'])
+          : null,
+      age: json['age'],
     );
   }
 }

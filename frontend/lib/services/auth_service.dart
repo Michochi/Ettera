@@ -4,8 +4,20 @@ import '../utils/constants.dart';
 class AuthService {
   final Dio _dio = Dio();
 
-  Future<Response> register(String name, String email, String password) async {
-    final data = {'name': name, 'email': email, 'password': password};
+  Future<Response> register(
+    String name,
+    String email,
+    String password,
+    String gender,
+    DateTime birthday,
+  ) async {
+    final data = {
+      'name': name,
+      'email': email,
+      'password': password,
+      'gender': gender,
+      'birthday': birthday.toIso8601String(),
+    };
     return await _dio.post('$apiUrl/auth/register', data: data);
   }
 
@@ -20,12 +32,16 @@ class AuthService {
     required String email,
     String? bio,
     String? photoUrl,
+    String? gender,
+    DateTime? birthday,
   }) async {
     final data = {
       'name': name,
       'email': email,
       'bio': bio,
       'photoUrl': photoUrl,
+      if (gender != null) 'gender': gender,
+      if (birthday != null) 'birthday': birthday.toIso8601String(),
     };
 
     return await _dio.put(

@@ -24,6 +24,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late TextEditingController bioController;
   bool isEditing = false;
   bool loading = false;
+  String? selectedGender;
+  DateTime? selectedBirthday;
 
   // Use AppTheme colors
   static Color get primaryGold => AppTheme.primaryGold;
@@ -37,6 +39,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     nameController = TextEditingController(text: user?.name ?? '');
     emailController = TextEditingController(text: user?.email ?? '');
     bioController = TextEditingController(text: user?.bio ?? '');
+    selectedGender = user?.gender;
+    selectedBirthday = user?.birthday;
   }
 
   @override
@@ -56,6 +60,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         nameController.text = user?.name ?? '';
         emailController.text = user?.email ?? '';
         bioController.text = user?.bio ?? '';
+        selectedGender = user?.gender;
+        selectedBirthday = user?.birthday;
       }
     });
   }
@@ -78,6 +84,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         name: nameController.text,
         email: emailController.text,
         bio: bioController.text.isEmpty ? null : bioController.text,
+        gender: selectedGender,
+        birthday: selectedBirthday,
       );
 
       if (response.statusCode == 200) {
@@ -111,9 +119,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final ImagePicker picker = ImagePicker();
       final XFile? image = await picker.pickImage(
         source: ImageSource.gallery,
-        maxWidth: 800,
-        maxHeight: 800,
-        imageQuality: 85,
+        maxWidth: 600,
+        maxHeight: 600,
+        imageQuality: 70,
       );
 
       if (image == null) return;
@@ -122,6 +130,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       // Read image as bytes
       final Uint8List imageBytes = await image.readAsBytes();
+
+      // Check file size (limit to ~1MB before base64 encoding)
+      if (imageBytes.length > 1000000) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Image is too large. Please choose a smaller image.',
+              ),
+            ),
+          );
+          setState(() => loading = false);
+        }
+        return;
+      }
 
       // Convert to base64
       final String base64Image = base64Encode(imageBytes);
@@ -256,16 +279,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       CircleAvatar(
                         radius: 60,
                         backgroundColor: primaryGold.withOpacity(0.2),
-                        child: user.photoUrl != null
-                            ? ClipOval(
-                                child: Image.network(
-                                  user.photoUrl!,
-                                  width: 120,
-                                  height: 120,
-                                  fit: BoxFit.cover,
-                                ),
-                              )
-                            : Icon(Icons.person, size: 60, color: primaryGold),
+                        backgroundImage:
+                            user.photoUrl != null && user.photoUrl!.isNotEmpty
+                            ? NetworkImage(user.photoUrl!)
+                            : null,
+                        child: user.photoUrl == null || user.photoUrl!.isEmpty
+                            ? Icon(Icons.person, size: 60, color: primaryGold)
+                            : null,
                       ),
                       if (isEditing)
                         Positioned(
@@ -404,6 +424,174 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             }
                             return null;
                           },
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Gender Field
+                        Text(
+                          'Gender',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: darkGray,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: isEditing
+                                  ? primaryGold
+                                  : Colors.grey.shade300,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: isEditing
+                              ? Row(
+                                  children: [
+                                    Expanded(
+                                      child: RadioListTile<String>(
+                                        title: const Text('Male'),
+                                        value: 'Male',
+                                        groupValue: selectedGender,
+                                        activeColor: primaryGold,
+                                        contentPadding: EdgeInsets.zero,
+                                        dense: true,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            selectedGender = value;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: RadioListTile<String>(
+                                        title: const Text('Female'),
+                                        value: 'Female',
+                                        groupValue: selectedGender,
+                                        activeColor: primaryGold,
+                                        contentPadding: EdgeInsets.zero,
+                                        dense: true,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            selectedGender = value;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: RadioListTile<String>(
+                                        title: const Text('Other'),
+                                        value: 'Other',
+                                        groupValue: selectedGender,
+                                        activeColor: primaryGold,
+                                        contentPadding: EdgeInsets.zero,
+                                        dense: true,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            selectedGender = value;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                  ),
+                                  child: Text(
+                                    selectedGender ?? 'Not specified',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: darkGray,
+                                    ),
+                                  ),
+                                ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Birthday Field
+                        Text(
+                          'Birthday',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: darkGray,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        InkWell(
+                          onTap: isEditing
+                              ? () async {
+                                  final DateTime? picked = await showDatePicker(
+                                    context: context,
+                                    initialDate:
+                                        selectedBirthday ??
+                                        DateTime(2000, 1, 1),
+                                    firstDate: DateTime(1940),
+                                    lastDate: DateTime.now(),
+                                    builder: (context, child) {
+                                      return Theme(
+                                        data: Theme.of(context).copyWith(
+                                          colorScheme: ColorScheme.light(
+                                            primary: primaryGold,
+                                            onPrimary: Colors.white,
+                                            onSurface: darkGray,
+                                          ),
+                                        ),
+                                        child: child!,
+                                      );
+                                    },
+                                  );
+                                  if (picked != null) {
+                                    setState(() {
+                                      selectedBirthday = picked;
+                                    });
+                                  }
+                                }
+                              : null,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 15,
+                              vertical: 15,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: isEditing
+                                    ? primaryGold
+                                    : Colors.grey.shade300,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  selectedBirthday == null
+                                      ? 'Select Birthday'
+                                      : '${selectedBirthday!.day}/${selectedBirthday!.month}/${selectedBirthday!.year}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: selectedBirthday == null
+                                        ? darkGray.withOpacity(0.6)
+                                        : darkGray,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.calendar_today,
+                                  color: isEditing
+                                      ? primaryGold
+                                      : Colors.grey.shade400,
+                                  size: 20,
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 24),
 

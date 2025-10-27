@@ -287,97 +287,124 @@ class _BrowseScreenState extends State<BrowseScreen> {
                 ],
               ),
             )
-          : Center(
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Action hints
-                  if (_isDragging)
-                    Positioned(
-                      top: 100,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+          : SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight:
+                      MediaQuery.of(context).size.height -
+                      kToolbarHeight -
+                      MediaQuery.of(context).padding.top,
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Stack(
+                        alignment: Alignment.center,
+                        clipBehavior: Clip.none,
                         children: [
-                          // Pass indicator (left)
-                          Opacity(
-                            opacity: _dragPosition.dx < -50
-                                ? math.min((-_dragPosition.dx - 50) / 50, 1.0)
-                                : 0,
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.close,
-                                color: Colors.white,
-                                size: 48,
+                          // Action hints
+                          if (_isDragging)
+                            Positioned(
+                              top: 50,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  // Pass indicator (left)
+                                  Opacity(
+                                    opacity: _dragPosition.dx < -50
+                                        ? math.min(
+                                            (-_dragPosition.dx - 50) / 50,
+                                            1.0,
+                                          )
+                                        : 0,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.close,
+                                        color: Colors.white,
+                                        size: 48,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 200),
+                                  // Like indicator (right)
+                                  Opacity(
+                                    opacity: _dragPosition.dx > 50
+                                        ? math.min(
+                                            (_dragPosition.dx - 50) / 50,
+                                            1.0,
+                                          )
+                                        : 0,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: Colors.green,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.favorite,
+                                        color: Colors.white,
+                                        size: 48,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 200),
-                          // Like indicator (right)
-                          Opacity(
-                            opacity: _dragPosition.dx > 50
-                                ? math.min((_dragPosition.dx - 50) / 50, 1.0)
-                                : 0,
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.favorite,
-                                color: Colors.white,
-                                size: 48,
-                              ),
+                          // Profile cards
+                          GestureDetector(
+                            onPanStart: _onPanStart,
+                            onPanUpdate: _onPanUpdate,
+                            onPanEnd: _onPanEnd,
+                            child: ProfileCard(
+                              profile: _profiles.first,
+                              position: _dragPosition,
+                              rotation: _dragRotation,
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  // Profile cards
-                  GestureDetector(
-                    onPanStart: _onPanStart,
-                    onPanUpdate: _onPanUpdate,
-                    onPanEnd: _onPanEnd,
-                    child: ProfileCard(
-                      profile: _profiles.first,
-                      position: _dragPosition,
-                      rotation: _dragRotation,
-                    ),
-                  ),
-                  // Action buttons
-                  Positioned(
-                    bottom: 40,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Pass button
-                        FloatingActionButton(
-                          heroTag: 'pass',
-                          onPressed: _handlePass,
-                          backgroundColor: Colors.white,
-                          child: Icon(Icons.close, color: Colors.red, size: 32),
-                        ),
-                        const SizedBox(width: 40),
-                        // Like button
-                        FloatingActionButton(
-                          heroTag: 'like',
-                          onPressed: _handleLike,
-                          backgroundColor: AppTheme.primaryGold,
-                          child: const Icon(
-                            Icons.favorite,
-                            color: Colors.white,
-                            size: 32,
+                      const SizedBox(height: 30),
+                      // Action buttons - below the card
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Pass button
+                          FloatingActionButton.large(
+                            heroTag: 'pass',
+                            onPressed: _handlePass,
+                            backgroundColor: Colors.white,
+                            elevation: 4,
+                            child: Icon(
+                              Icons.close,
+                              color: Colors.red,
+                              size: 36,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                          const SizedBox(width: 60),
+                          // Like button
+                          FloatingActionButton.large(
+                            heroTag: 'like',
+                            onPressed: _handleLike,
+                            backgroundColor: AppTheme.primaryGold,
+                            elevation: 4,
+                            child: const Icon(
+                              Icons.favorite,
+                              color: Colors.white,
+                              size: 36,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
     );

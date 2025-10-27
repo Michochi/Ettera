@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const Profile = require("../models/Profile");
 
 // Middleware to verify JWT token
 exports.verifyToken = (req, res, next) => {
@@ -21,13 +22,43 @@ exports.verifyToken = (req, res, next) => {
 
 exports.register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, gender, birthday } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !password || !gender || !birthday) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
 
     const existing = await User.findOne({ email });
     if (existing) return res.status(400).json({ message: "Email already registered" });
 
+    // Calculate age from birthday
+    const birthDate = new Date(birthday);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
     const hashed = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, password: hashed });
+    const user = await User.create({ 
+      name, 
+      email, 
+      password: hashed,
+      gender,
+      birthday: birthDate,
+      age
+    });
+
+    // Create a Profile document for the user
+    await Profile.create({
+      userId: user._id,
+      age: age,
+      likedProfiles: [],
+      passedProfiles: [],
+      matches: [],
+    });
 
     // Generate token for auto-login after registration
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
@@ -59,7 +90,7 @@ exports.login = async (req, res) => {
 // Update user profile
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, email, bio, photoUrl } = req.body;
+    const { name, email, bio, photoUrl, gender, birthday } = req.body;
     const userId = req.userId;
 
     // Check if email is being changed and if it's already taken
@@ -76,6 +107,26 @@ exports.updateProfile = async (req, res) => {
     if (email) updateData.email = email;
     if (bio !== undefined) updateData.bio = bio;
     if (photoUrl) updateData.photoUrl = photoUrl;
+    if (gender) updateData.gender = gender;
+    
+    // Handle birthday and recalculate age
+    if (birthday) {
+      const birthDate = new Date(birthday);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      updateData.birthday = birthDate;
+      updateData.age = age;
+      
+      // Also update age in Profile collection
+      await Profile.findOneAndUpdate(
+        { userId },
+        { age: age }
+      );
+    }
 
     const user = await User.findByIdAndUpdate(
       userId,
