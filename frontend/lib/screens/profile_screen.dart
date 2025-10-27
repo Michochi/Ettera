@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import '../providers/user_provider.dart';
 import '../widgets/custom_app_bar.dart';
+import '../widgets/custom_drawer.dart';
 import '../widgets/app_theme.dart';
 import '../services/auth_service.dart';
 import '../models/user.dart';
@@ -194,6 +195,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return Scaffold(
         backgroundColor: backgroundColor,
         appBar: const CustomAppBar(),
+        drawer: const CustomDrawer(),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -232,6 +234,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: const CustomAppBar(),
+      drawer: const CustomDrawer(),
       body: SingleChildScrollView(
         child: Center(
           child: Container(

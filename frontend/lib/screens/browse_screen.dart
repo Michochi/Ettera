@@ -7,6 +7,7 @@ import '../services/matching_service.dart';
 import '../providers/user_provider.dart';
 import '../widgets/profile_card.dart';
 import '../widgets/custom_app_bar.dart';
+import '../widgets/custom_drawer.dart';
 import '../widgets/app_theme.dart';
 
 class BrowseScreen extends StatefulWidget {
@@ -244,6 +245,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: const CustomAppBar(),
+      drawer: const CustomDrawer(),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null

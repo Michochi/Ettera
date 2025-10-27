@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../widgets/custom_app_bar.dart';
+import '../widgets/custom_drawer.dart';
 import '../widgets/app_theme.dart';
 import '../widgets/home_feature_card.dart';
 import '../widgets/statistic_widget.dart';
@@ -25,6 +26,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: const CustomAppBar(),
+      drawer: const CustomDrawer(),
       body: SingleChildScrollView(
         child: Column(
           children: [
