@@ -4,6 +4,7 @@ import 'auth_buttons.dart';
 import 'profile_dropdown.dart';
 import '../providers/user_provider.dart';
 
+/// Reusable app bar with logo, centered navigation links, and auth-aware actions
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
 

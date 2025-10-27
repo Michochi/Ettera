@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 
+/// Displays Login/Register buttons when logged out, or Logout button when logged in
 class AuthButtons extends StatelessWidget {
   const AuthButtons({super.key});
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// White container with rounded corners and shadow, used for cards and forms
 class CustomContainer extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;

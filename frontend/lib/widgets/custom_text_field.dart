@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Styled text input field with gold borders, validation support, and optional password masking
 class CustomTextField extends StatelessWidget {
   final String label;
   final TextEditingController controller;

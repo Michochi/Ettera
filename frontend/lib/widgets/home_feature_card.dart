@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'app_theme.dart';
 
+/// Enhanced feature card for home page with circular icon background and centered layout
 class HomeFeatureCard extends StatelessWidget {
   final IconData icon;
   final String title;

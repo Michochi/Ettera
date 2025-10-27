@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Centralized theme configuration with brand colors and Material theme settings
 class AppTheme {
   static const Color primaryGold = Color(0xFFC4933F);
   static const Color darkGray = Color(0xFF1D1D1D);

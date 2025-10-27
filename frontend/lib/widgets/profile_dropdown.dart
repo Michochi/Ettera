@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import 'app_theme.dart';
 
+/// Profile picture dropdown menu with user info, Profile Management, and Logout options
 class ProfileDropdown extends StatelessWidget {
   const ProfileDropdown({super.key});
 
