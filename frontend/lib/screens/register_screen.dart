@@ -12,7 +12,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final bioController = TextEditingController();
   final _authService = AuthService();
   bool loading = false;
 
@@ -23,7 +22,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         nameController.text,
         emailController.text,
         passwordController.text,
-        bioController.text,
       );
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(
@@ -62,10 +60,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 decoration: const InputDecoration(labelText: "Password"),
                 obscureText: true,
               ),
-              TextField(
-                controller: bioController,
-                decoration: const InputDecoration(labelText: "Bio"),
-              ),
+
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: loading ? null : register,
