@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/custom_container.dart';
 import '../widgets/loading_indicator.dart';
 import '../widgets/app_theme.dart';
+import '../providers/user_provider.dart';
+import '../models/user.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -38,17 +41,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
         passwordController.text,
       );
       if (response.statusCode == 201) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Registration successful!")));
-        Navigator.pushReplacementNamed(context, '/');
+        // Parse user data and save to provider
+        final userData = response.data['user'];
+        final user = User.fromJson(userData);
+
+        if (mounted) {
+          context.read<UserProvider>().setUser(user);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Registration successful!")),
+          );
+          Navigator.pushReplacementNamed(context, '/');
+        }
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Registration failed")));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Registration failed")));
+      }
     } finally {
-      setState(() => loading = false);
+      if (mounted) {
+        setState(() => loading = false);
+      }
     }
   }
 

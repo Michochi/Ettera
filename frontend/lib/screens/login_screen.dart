@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/custom_container.dart';
+import '../providers/user_provider.dart';
+import '../models/user.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -31,17 +34,29 @@ class _LoginScreenState extends State<LoginScreen> {
         passwordController.text,
       );
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Login successful!")));
-        Navigator.pushReplacementNamed(context, '/');
+        // Parse user data and save to provider
+        final userData = response.data['user'];
+        final user = User.fromJson(userData);
+
+        if (mounted) {
+          context.read<UserProvider>().setUser(user);
+
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text("Login successful!")));
+          Navigator.pushReplacementNamed(context, '/');
+        }
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Login failed")));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Login failed")));
+      }
     } finally {
-      setState(() => loading = false);
+      if (mounted) {
+        setState(() => loading = false);
+      }
     }
   }
 
