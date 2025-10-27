@@ -34,4 +34,24 @@ class AuthService {
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
   }
+
+  Future<Response> uploadProfilePicture({
+    required String token,
+    required String imageData,
+  }) async {
+    final data = {'imageData': imageData};
+
+    return await _dio.post(
+      '$apiUrl/auth/profile/picture',
+      data: data,
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
+  }
+
+  Future<Response> deleteProfilePicture({required String token}) async {
+    return await _dio.delete(
+      '$apiUrl/auth/profile/picture',
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
+  }
 }

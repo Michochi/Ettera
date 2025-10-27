@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'auth_buttons.dart';
+import 'profile_dropdown.dart';
 import '../providers/user_provider.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -19,27 +20,43 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       leadingWidth: 200,
       leading: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        child: Image.asset(
-          'assets/images/eterra-logo2.png',
-          fit: BoxFit.contain,
+        child: GestureDetector(
+          onTap: () => Navigator.pushNamed(context, '/'),
+          child: Image.asset(
+            'assets/images/eterra-logo2.png',
+            fit: BoxFit.contain,
+          ),
         ),
       ),
+      centerTitle: true,
       title: Row(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           TextButton(
             onPressed: () => Navigator.pushNamed(context, '/'),
             child: const Text('Home', style: TextStyle(fontSize: 16)),
           ),
-          const SizedBox(width: 8),
-          if (isLoggedIn)
+          if (isLoggedIn) ...[
+            const SizedBox(width: 16),
             TextButton(
               onPressed: () => Navigator.pushNamed(context, '/profile'),
               child: const Text('Profile', style: TextStyle(fontSize: 16)),
             ),
+          ],
         ],
       ),
-      actions: actions ?? [const AuthButtons()],
+      actions:
+          actions ??
+          [
+            if (isLoggedIn)
+              const Padding(
+                padding: EdgeInsets.only(right: 16.0),
+                child: ProfileDropdown(),
+              )
+            else
+              const AuthButtons(),
+          ],
     );
   }
 

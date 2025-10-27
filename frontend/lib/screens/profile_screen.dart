@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:convert';
+import 'dart:typed_data';
 import '../providers/user_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/app_theme.dart';
@@ -97,6 +100,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to update profile: ${e.toString()}')),
+        );
+        setState(() => loading = false);
+      }
+    }
+  }
+
+  Future<void> uploadProfilePicture() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+
+      if (image == null) return;
+
+      setState(() => loading = true);
+
+      // Read image as bytes
+      final Uint8List imageBytes = await image.readAsBytes();
+
+      // Convert to base64
+      final String base64Image = base64Encode(imageBytes);
+      final String imageData = 'data:image/jpeg;base64,$base64Image';
+
+      final userProvider = context.read<UserProvider>();
+      final token = userProvider.token;
+
+      if (token == null) {
+        throw Exception('No authentication token found');
+      }
+
+      final response = await _authService.uploadProfilePicture(
+        token: token,
+        imageData: imageData,
+      );
+
+      if (response.statusCode == 200) {
+        final userData = response.data['user'];
+        final updatedUser = User.fromJson(userData);
+        userProvider.updateUser(updatedUser);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile picture updated!')),
+          );
+          setState(() => loading = false);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to upload image: ${e.toString()}')),
         );
         setState(() => loading = false);
       }
@@ -219,14 +277,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               shape: BoxShape.circle,
                             ),
                             child: IconButton(
-                              onPressed: () {
-                                // TODO: Implement photo upload
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Photo upload coming soon!'),
-                                  ),
-                                );
-                              },
+                              onPressed: loading ? null : uploadProfilePicture,
                               icon: const Icon(
                                 Icons.camera_alt,
                                 color: Colors.white,
