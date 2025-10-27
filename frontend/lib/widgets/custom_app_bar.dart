@@ -41,6 +41,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           if (isLoggedIn) ...[
             const SizedBox(width: 16),
             TextButton(
+              onPressed: () => Navigator.pushNamed(context, '/browse'),
+              child: const Text('Match Now', style: TextStyle(fontSize: 16)),
+            ),
+            const SizedBox(width: 16),
+            TextButton(
               onPressed: () => Navigator.pushNamed(context, '/profile'),
               child: const Text('Profile', style: TextStyle(fontSize: 16)),
             ),

@@ -4,6 +4,7 @@ import '../widgets/custom_app_bar.dart';
 import '../widgets/app_theme.dart';
 import '../widgets/home_feature_card.dart';
 import '../widgets/statistic_widget.dart';
+import '../widgets/custom_footer.dart';
 import '../providers/user_provider.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -289,6 +290,9 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ),
+
+            // Footer
+            const CustomFooter(),
           ],
         ),
       ),
