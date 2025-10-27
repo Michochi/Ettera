@@ -88,7 +88,7 @@ class HomeScreen extends StatelessWidget {
                     if (isLoggedIn)
                       ElevatedButton(
                         onPressed: () {
-                          // TODO: Navigate to matching screen
+                          Navigator.pushNamed(context, '/browse');
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primaryGold,

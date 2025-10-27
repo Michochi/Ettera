@@ -13,7 +13,9 @@ app.use(express.json());
 
 // Routes
 const authRoutes = require("./routes/auth");
+const matchingRoutes = require("./routes/matching");
 app.use("/api/auth", authRoutes);
+app.use("/api/matching", matchingRoutes);
 
 app.get("/", (req, res) => {
   res.send("Backend is running 🚀");

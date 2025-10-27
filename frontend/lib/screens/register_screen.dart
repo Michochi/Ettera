@@ -41,12 +41,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
         passwordController.text,
       );
       if (response.statusCode == 201) {
-        // Parse user data and save to provider
+        // Parse user data and token, save to provider
         final userData = response.data['user'];
+        final token = response.data['token'];
         final user = User.fromJson(userData);
 
         if (mounted) {
-          context.read<UserProvider>().setUser(user);
+          context.read<UserProvider>().setUser(user, token: token);
 
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Registration successful!")),
