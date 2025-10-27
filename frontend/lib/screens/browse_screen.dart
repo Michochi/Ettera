@@ -112,6 +112,16 @@ class _BrowseScreenState extends State<BrowseScreen> {
   Future<void> _handleLike() async {
     if (_profiles.isEmpty) return;
 
+    // Show dragging indicator
+    setState(() {
+      _isDragging = true;
+      _dragPosition = const Offset(400, 0);
+      _dragRotation = 0.3;
+    });
+
+    // Wait for animation to complete
+    await Future.delayed(const Duration(milliseconds: 300));
+
     final profile = _profiles.first;
     final userProvider = context.read<UserProvider>();
     final token = userProvider.token;
@@ -148,6 +158,16 @@ class _BrowseScreenState extends State<BrowseScreen> {
 
   Future<void> _handlePass() async {
     if (_profiles.isEmpty) return;
+
+    // Show dragging indicator
+    setState(() {
+      _isDragging = true;
+      _dragPosition = const Offset(-400, 0);
+      _dragRotation = -0.3;
+    });
+
+    // Wait for animation to complete
+    await Future.delayed(const Duration(milliseconds: 300));
 
     final profile = _profiles.first;
     final userProvider = context.read<UserProvider>();
@@ -361,10 +381,17 @@ class _BrowseScreenState extends State<BrowseScreen> {
                             onPanStart: _onPanStart,
                             onPanUpdate: _onPanUpdate,
                             onPanEnd: _onPanEnd,
-                            child: ProfileCard(
-                              profile: _profiles.first,
-                              position: _dragPosition,
-                              rotation: _dragRotation,
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeOut,
+                              transform: Matrix4.identity()
+                                ..translate(_dragPosition.dx, _dragPosition.dy)
+                                ..rotateZ(_dragRotation),
+                              child: ProfileCard(
+                                profile: _profiles.first,
+                                position: Offset.zero,
+                                rotation: 0,
+                              ),
                             ),
                           ),
                         ],
