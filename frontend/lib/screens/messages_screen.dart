@@ -246,12 +246,22 @@ class _MessagesScreenState extends State<MessagesScreen> {
   }
 
   Future<void> _loadConversations() async {
+    if (!mounted) return;
+
     setState(() {
       _isLoading = true;
     });
 
     try {
       final userProvider = context.read<UserProvider>();
+
+      // Wait for provider to be initialized
+      if (!userProvider.isInitialized) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        if (!mounted) return;
+        return _loadConversations();
+      }
+
       if (userProvider.token == null) {
         setState(() {
           _isLoading = false;
@@ -263,6 +273,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
       final response = await messageService.getConversations(
         token: userProvider.token!,
       );
+
+      if (!mounted) return;
 
       if (response.statusCode == 200) {
         final data = response.data;
@@ -305,9 +317,11 @@ class _MessagesScreenState extends State<MessagesScreen> {
         );
       }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

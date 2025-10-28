@@ -53,20 +53,42 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkAuthStatus();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAuthStatus();
+    });
   }
 
   Future<void> _checkAuthStatus() async {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    try {
+      print('SplashScreen: Starting auth check...');
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
 
-    // Wait for user data to load
-    while (!userProvider.isInitialized) {
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
+      // Wait for user data to load with a timeout (max 5 seconds)
+      int attempts = 0;
+      while (!userProvider.isInitialized && attempts < 50) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        attempts++;
+        if (attempts % 10 == 0) {
+          print('SplashScreen: Waiting for provider... attempt $attempts');
+        }
+      }
 
-    // Navigate to home screen after loading
-    if (mounted) {
-      Navigator.pushReplacementNamed(context, '/home');
+      print(
+        'SplashScreen: Provider initialized: ${userProvider.isInitialized}',
+      );
+      print('SplashScreen: User logged in: ${userProvider.isLoggedIn}');
+
+      // Navigate to home screen after loading
+      if (mounted) {
+        print('SplashScreen: Navigating to home...');
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    } catch (e) {
+      print('Error in splash screen: $e');
+      // Navigate anyway after error
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
     }
   }
 

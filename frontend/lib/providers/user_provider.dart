@@ -27,15 +27,12 @@ class UserProvider extends ChangeNotifier {
         _token = token;
         final userMap = json.decode(userJson) as Map<String, dynamic>;
         _user = User.fromJson(userMap);
-        _isInitialized = true;
-        notifyListeners();
         print('User loaded from preferences: ${_user?.email}');
-      } else {
-        _isInitialized = true;
-        notifyListeners();
       }
     } catch (e) {
       print('Error loading user from preferences: $e');
+    } finally {
+      // Always set initialized to true, even on error
       _isInitialized = true;
       notifyListeners();
     }

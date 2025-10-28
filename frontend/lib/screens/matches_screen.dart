@@ -16,26 +16,59 @@ class _MatchesScreenState extends State<MatchesScreen> {
   final MatchingService _matchingService = MatchingService();
   List<dynamic> _matches = [];
   bool _isLoading = true;
+  bool _hasLoadedOnce = false;
 
   @override
   void initState() {
     super.initState();
-    _loadMatches();
+    // Wait for the next frame to ensure provider is ready
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadMatches();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Load matches when provider is ready and we haven't loaded yet
+    if (!_hasLoadedOnce) {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      if (userProvider.isInitialized && userProvider.token != null) {
+        _hasLoadedOnce = true;
+        _loadMatches();
+      }
+    }
   }
 
   Future<void> _loadMatches() async {
+    if (!mounted) return;
+
     setState(() => _isLoading = true);
 
     try {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+      // Wait for provider to be initialized
+      if (!userProvider.isInitialized) {
+        // Wait a bit and try again
+        await Future.delayed(const Duration(milliseconds: 100));
+        if (!mounted) return;
+        return _loadMatches();
+      }
+
       final token = userProvider.token;
 
       if (token == null) {
-        Navigator.pushReplacementNamed(context, '/login');
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/login');
+        }
         return;
       }
 
       final response = await _matchingService.getMatches(token: token);
+
+      if (!mounted) return;
 
       if (response.data != null) {
         final data = response.data;
@@ -50,6 +83,11 @@ class _MatchesScreenState extends State<MatchesScreen> {
             _isLoading = false;
           });
         }
+      } else {
+        setState(() {
+          _matches = [];
+          _isLoading = false;
+        });
       }
     } catch (e) {
       print('Error loading matches: $e');

@@ -33,6 +33,8 @@ class _BrowseScreenState extends State<BrowseScreen> {
   }
 
   Future<void> _loadProfiles() async {
+    if (!mounted) return;
+
     setState(() {
       _isLoading = true;
       _error = null;
@@ -40,6 +42,14 @@ class _BrowseScreenState extends State<BrowseScreen> {
 
     try {
       final userProvider = context.read<UserProvider>();
+
+      // Wait for provider to be initialized
+      if (!userProvider.isInitialized) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        if (!mounted) return;
+        return _loadProfiles();
+      }
+
       final token = userProvider.token;
 
       if (token == null) {
@@ -54,6 +64,8 @@ class _BrowseScreenState extends State<BrowseScreen> {
         token: token,
         limit: 20,
       );
+
+      if (!mounted) return;
 
       if (response.statusCode == 200) {
         final List<dynamic> profilesJson = response.data['profiles'];
@@ -70,10 +82,12 @@ class _BrowseScreenState extends State<BrowseScreen> {
         });
       }
     } catch (e) {
-      setState(() {
-        _error = 'Error: ${e.toString()}';
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _error = 'Error: ${e.toString()}';
+          _isLoading = false;
+        });
+      }
     }
   }
 
