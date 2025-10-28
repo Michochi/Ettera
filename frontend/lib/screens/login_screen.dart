@@ -19,6 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
   final _authService = AuthService();
   bool loading = false;
+  bool _obscurePassword = true;
 
   // Define brand colors
   static const Color primaryGold = Color(0xFFC4933F);
@@ -187,12 +188,27 @@ class _LoginScreenState extends State<LoginScreen> {
                           const SizedBox(height: 20),
                           TextFormField(
                             controller: passwordController,
-                            decoration: inputDecoration(
-                              "Password",
-                              Icons.lock_outline,
-                            ),
+                            decoration:
+                                inputDecoration(
+                                  "Password",
+                                  Icons.lock_outline,
+                                ).copyWith(
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _obscurePassword
+                                          ? Icons.visibility_off
+                                          : Icons.visibility,
+                                      color: primaryGold,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _obscurePassword = !_obscurePassword;
+                                      });
+                                    },
+                                  ),
+                                ),
                             validator: Validators.validatePassword,
-                            obscureText: true,
+                            obscureText: _obscurePassword,
                           ),
                           const SizedBox(height: 32),
                           SizedBox(

@@ -24,6 +24,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool loading = false;
   String? selectedGender;
   DateTime? selectedBirthday;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   // Use AppTheme colors
   static Color get primaryGold => AppTheme.primaryGold;
@@ -402,22 +404,53 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           // Password field
                           TextFormField(
                             controller: passwordController,
-                            obscureText: true,
-                            decoration: _buildInputDecoration(
-                              "Password",
-                              Icons.lock_outline,
-                            ),
+                            obscureText: _obscurePassword,
+                            decoration:
+                                _buildInputDecoration(
+                                  "Password",
+                                  Icons.lock_outline,
+                                ).copyWith(
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _obscurePassword
+                                          ? Icons.visibility_off
+                                          : Icons.visibility,
+                                      color: primaryGold,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _obscurePassword = !_obscurePassword;
+                                      });
+                                    },
+                                  ),
+                                ),
                             validator: Validators.validatePassword,
                           ),
                           const SizedBox(height: 18),
                           // Confirm Password field
                           TextFormField(
                             controller: confirmPasswordController,
-                            obscureText: true,
-                            decoration: _buildInputDecoration(
-                              "Confirm Password",
-                              Icons.lock_outline,
-                            ),
+                            obscureText: _obscureConfirmPassword,
+                            decoration:
+                                _buildInputDecoration(
+                                  "Confirm Password",
+                                  Icons.lock_outline,
+                                ).copyWith(
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _obscureConfirmPassword
+                                          ? Icons.visibility_off
+                                          : Icons.visibility,
+                                      color: primaryGold,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _obscureConfirmPassword =
+                                            !_obscureConfirmPassword;
+                                      });
+                                    },
+                                  ),
+                                ),
                             validator: (value) =>
                                 Validators.validatePasswordMatch(
                                   passwordController.text,
