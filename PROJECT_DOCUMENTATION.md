@@ -1,4 +1,4 @@
-# Ettera - Dating Application
+# Eterra - Dating Application
 
 A full-stack dating application built with Flutter (frontend) and Node.js/Express (backend). Features include user authentication, profile management, swipe-based matching, real-time messaging, and persistent login.
 
@@ -10,7 +10,6 @@ A full-stack dating application built with Flutter (frontend) and Node.js/Expres
 - [Setup Instructions](#setup-instructions)
 - [API Documentation](#api-documentation)
 - [Code Quality Standards](#code-quality-standards)
-- [Contributing](#contributing)
 
 ## ✨ Features
 
@@ -535,21 +534,3 @@ Check SharedPreferences permissions
 - Include error handling
 - Write meaningful commit messages
 - Test before submitting PR
-
-## 📝 License
-
-This project is for educational purposes.
-
-## 👥 Authors
-
-- **Michochi** - Initial work - [GitHub](https://github.com/Michochi)
-
-## 🙏 Acknowledgments
-
-- Flutter team for the amazing framework
-- MongoDB for the database solution
-- All contributors and testers
-
----
-
-**Need help?** Open an issue on GitHub or contact support@eterra.com
