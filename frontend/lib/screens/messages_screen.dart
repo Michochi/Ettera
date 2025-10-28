@@ -26,11 +26,57 @@ class _MessagesScreenState extends State<MessagesScreen> {
   Conversation? _selectedConversation;
   List<Message> _messages = [];
   bool _showMobileChatView = false; // Track mobile chat view state
+  bool _hasCheckedArguments = false; // Track if we've checked route arguments
 
   @override
   void initState() {
     super.initState();
     _loadConversations();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Check for route arguments only once
+    if (!_hasCheckedArguments) {
+      _hasCheckedArguments = true;
+      final args =
+          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+      if (args != null && args.containsKey('userId')) {
+        final userId = args['userId'] as String;
+        // Find the conversation with this user
+        _openConversationByUserId(userId);
+      }
+    }
+  }
+
+  void _openConversationByUserId(String userId) {
+    // Wait for conversations to load, then select the conversation
+    Future.delayed(const Duration(milliseconds: 500), () {
+      final conversation = _conversations.firstWhere(
+        (conv) => conv.userId == userId,
+        orElse: () => Conversation(
+          id: userId,
+          userId: userId,
+          userName: 'User',
+          userPhoto: null,
+          lastMessage: '',
+          lastMessageTime: DateTime.now(),
+          unreadCount: 0,
+          isOnline: false,
+        ),
+      );
+
+      if (mounted) {
+        setState(() {
+          _selectedConversation = conversation;
+          _showMobileChatView = true;
+        });
+        _loadMessages(userId);
+      }
+    });
   }
 
   @override

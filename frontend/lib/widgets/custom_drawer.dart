@@ -76,7 +76,7 @@ class CustomDrawer extends StatelessWidget {
             title: const Text('Home'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, '/');
+              Navigator.pushNamed(context, '/home');
             },
           ),
           if (isLoggedIn) ...[
@@ -86,6 +86,14 @@ class CustomDrawer extends StatelessWidget {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.pushNamed(context, '/browse');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.people),
+              title: const Text('Matches'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/matches');
               },
             ),
             ListTile(
@@ -111,7 +119,7 @@ class CustomDrawer extends StatelessWidget {
               onTap: () {
                 userProvider.clearUser();
                 Navigator.pop(context);
-                Navigator.pushReplacementNamed(context, '/');
+                Navigator.pushReplacementNamed(context, '/home');
               },
             ),
           ] else ...[

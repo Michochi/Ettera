@@ -105,7 +105,7 @@ class ProfileDropdown extends StatelessWidget {
           Navigator.pushNamed(context, '/profile');
         } else if (value == 'logout') {
           userProvider.clearUser();
-          Navigator.pushReplacementNamed(context, '/');
+          Navigator.pushReplacementNamed(context, '/home');
         }
       },
     );

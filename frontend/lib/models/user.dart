@@ -33,4 +33,17 @@ class User {
       age: json['age'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'name': name,
+      'email': email,
+      'bio': bio,
+      'photoUrl': photoUrl,
+      'gender': gender,
+      'birthday': birthday?.toIso8601String(),
+      'age': age,
+    };
+  }
 }

@@ -227,7 +227,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              // TODO: Navigate to matches screen
+              Navigator.pushNamed(context, '/matches');
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryGold,

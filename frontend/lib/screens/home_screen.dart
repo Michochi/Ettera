@@ -162,7 +162,7 @@ class HomeScreen extends StatelessWidget {
                               ),
                             ),
                             child: const Text(
-                              'Learn More',
+                              'Sign in',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,

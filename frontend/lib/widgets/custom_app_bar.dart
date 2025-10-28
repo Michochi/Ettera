@@ -28,7 +28,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             leading: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               child: GestureDetector(
-                onTap: () => Navigator.pushNamed(context, '/'),
+                onTap: () => Navigator.pushNamed(context, '/home'),
                 child: Image.asset(
                   'assets/images/eterra-logo2.png',
                   fit: BoxFit.contain,
@@ -36,34 +36,48 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ),
             centerTitle: true,
-            title: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.pushNamed(context, '/'),
-                  child: const Text('Home', style: TextStyle(fontSize: 16)),
-                ),
-                if (isLoggedIn) ...[
-                  const SizedBox(width: 16),
-                  TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/browse'),
-                    child: const Text(
-                      'Match Now',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/messages'),
-                    child: const Text(
-                      'Messages',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                ],
-              ],
-            ),
+            title: isLoggedIn
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pushNamed(context, '/home'),
+                        child: const Text(
+                          'Home',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      TextButton(
+                        onPressed: () =>
+                            Navigator.pushNamed(context, '/browse'),
+                        child: const Text(
+                          'Match Now',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      TextButton(
+                        onPressed: () =>
+                            Navigator.pushNamed(context, '/matches'),
+                        child: const Text(
+                          'Matches',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      TextButton(
+                        onPressed: () =>
+                            Navigator.pushNamed(context, '/messages'),
+                        child: const Text(
+                          'Messages',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ],
+                  )
+                : null,
             actions:
                 actions ??
                 [
@@ -88,7 +102,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ),
             title: GestureDetector(
-              onTap: () => Navigator.pushNamed(context, '/'),
+              onTap: () => Navigator.pushNamed(context, '/home'),
               child: Image.asset(
                 'assets/images/eterra-logo2.png',
                 height: 40,

@@ -15,7 +15,7 @@ class AuthButtons extends StatelessWidget {
       return TextButton(
         onPressed: () {
           userProvider.clearUser();
-          Navigator.pushReplacementNamed(context, '/');
+          Navigator.pushReplacementNamed(context, '/home');
         },
         child: const Text('Logout', style: TextStyle(fontSize: 16)),
       );
