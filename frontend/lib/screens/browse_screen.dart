@@ -152,18 +152,33 @@ class _BrowseScreenState extends State<BrowseScreen> {
         profileId: profile.id,
       );
 
-      if (response.statusCode == 200 && response.data['match'] == true) {
-        // Show match dialog
-        _showMatchDialog(profile);
-      }
+      print('Like response: ${response.data}'); // Debug log
 
-      // Remove the profile from the list
-      setState(() {
-        _profiles.removeAt(0);
-        _dragPosition = Offset.zero;
-        _dragRotation = 0;
-        _isDragging = false;
-      });
+      if (response.statusCode == 200 && response.data['isMatch'] == true) {
+        print('Match detected! Showing dialog...'); // Debug log
+
+        // Remove the profile first
+        setState(() {
+          _profiles.removeAt(0);
+          _dragPosition = Offset.zero;
+          _dragRotation = 0;
+          _isDragging = false;
+        });
+
+        // Wait for UI to update, then show match dialog
+        await Future.delayed(const Duration(milliseconds: 300));
+        if (mounted) {
+          _showMatchDialog(profile);
+        }
+      } else {
+        // Just remove the profile if no match
+        setState(() {
+          _profiles.removeAt(0);
+          _dragPosition = Offset.zero;
+          _dragRotation = 0;
+          _isDragging = false;
+        });
+      }
     } catch (e) {
       if (mounted) {
         ErrorHandler.showErrorSnackBar(context, e);
@@ -222,42 +237,114 @@ class _BrowseScreenState extends State<BrowseScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Column(
-          children: [
-            Icon(Icons.favorite, color: AppTheme.primaryGold, size: 64),
-            const SizedBox(height: 16),
-            const Text(
-              "It's a Match!",
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        child: Container(
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Colors.white, AppTheme.primaryGold.withOpacity(0.05)],
             ),
-          ],
-        ),
-        content: Text(
-          'You and ${profile.name} liked each other!',
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 16),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Keep Browsing'),
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.pushNamed(context, '/matches');
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryGold,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('View Matches'),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Animated heart icon
+              TweenAnimationBuilder(
+                duration: const Duration(milliseconds: 600),
+                tween: Tween<double>(begin: 0, end: 1),
+                builder: (context, double value, child) {
+                  return Transform.scale(
+                    scale: value,
+                    child: Icon(
+                      Icons.favorite,
+                      color: AppTheme.primaryGold,
+                      size: 80,
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 24),
+              // Match title
+              Text(
+                "It's a Match!",
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.darkGray,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Message
+              Text(
+                'You and ${profile.name} liked each other!',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 18,
+                  color: AppTheme.darkGray.withOpacity(0.7),
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 32),
+              // Action buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: BorderSide(color: AppTheme.primaryGold, width: 2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'Keep Browsing',
+                        style: TextStyle(
+                          color: AppTheme.primaryGold,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.pushNamed(context, '/matches');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: AppTheme.primaryGold,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Send Message',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
