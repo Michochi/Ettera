@@ -9,6 +9,8 @@ import '../widgets/custom_drawer.dart';
 import '../widgets/app_theme.dart';
 import '../services/auth_service.dart';
 import '../models/user.dart';
+import '../utils/error_handler.dart';
+import '../utils/validators.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -96,8 +98,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         userProvider.updateUser(updatedUser);
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Profile updated successfully!')),
+          ErrorHandler.showSuccessSnackBar(
+            context,
+            'Profile updated successfully!',
           );
           setState(() {
             loading = false;
@@ -107,9 +110,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update profile: ${e.toString()}')),
-        );
+        ErrorHandler.showErrorSnackBar(context, e);
+        ErrorHandler.logError(e, context: 'Profile Update');
         setState(() => loading = false);
       }
     }
@@ -135,12 +137,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       // Check file size (limit to ~1MB before base64 encoding)
       if (imageBytes.length > 1000000) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Image is too large. Please choose a smaller image.',
-              ),
-            ),
+          ErrorHandler.showWarningSnackBar(
+            context,
+            'Image is too large. Please choose a smaller image.',
           );
           setState(() => loading = false);
         }
@@ -169,17 +168,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         userProvider.updateUser(updatedUser);
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Profile picture updated!')),
-          );
+          ErrorHandler.showSuccessSnackBar(context, 'Profile picture updated!');
           setState(() => loading = false);
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to upload image: ${e.toString()}')),
-        );
+        ErrorHandler.showErrorSnackBar(context, e);
+        ErrorHandler.logError(e, context: 'Profile Picture Upload');
         setState(() => loading = false);
       }
     }
@@ -371,12 +367,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               vertical: 15,
                             ),
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Name is required';
-                            }
-                            return null;
-                          },
+                          validator: Validators.validateName,
                         ),
                         const SizedBox(height: 24),
 
@@ -418,15 +409,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               vertical: 15,
                             ),
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Email is required';
-                            }
-                            if (!value.contains('@')) {
-                              return 'Please enter a valid email';
-                            }
-                            return null;
-                          },
+                          validator: Validators.validateEmail,
                         ),
                         const SizedBox(height: 24),
 
@@ -637,6 +620,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               vertical: 15,
                             ),
                           ),
+                          validator: Validators.validateBio,
                         ),
                         const SizedBox(height: 32),
 

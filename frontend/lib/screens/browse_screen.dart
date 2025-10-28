@@ -9,6 +9,7 @@ import '../widgets/profile_card.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/app_theme.dart';
+import '../utils/error_handler.dart';
 
 class BrowseScreen extends StatefulWidget {
   const BrowseScreen({super.key});
@@ -83,8 +84,10 @@ class _BrowseScreenState extends State<BrowseScreen> {
       }
     } catch (e) {
       if (mounted) {
+        ErrorHandler.showErrorSnackBar(context, e);
+        ErrorHandler.logError(e, context: 'Browse - Load Profiles');
         setState(() {
-          _error = 'Error: ${e.toString()}';
+          _error = 'Unable to load profiles';
           _isLoading = false;
         });
       }
@@ -162,7 +165,10 @@ class _BrowseScreenState extends State<BrowseScreen> {
         _isDragging = false;
       });
     } catch (e) {
-      print('Error liking profile: $e');
+      if (mounted) {
+        ErrorHandler.showErrorSnackBar(context, e);
+        ErrorHandler.logError(e, context: 'Browse - Like Profile');
+      }
       setState(() {
         _dragPosition = Offset.zero;
         _dragRotation = 0;
@@ -201,7 +207,9 @@ class _BrowseScreenState extends State<BrowseScreen> {
         _isDragging = false;
       });
     } catch (e) {
-      print('Error passing profile: $e');
+      if (mounted) {
+        ErrorHandler.logError(e, context: 'Browse - Pass Profile');
+      }
       setState(() {
         _dragPosition = Offset.zero;
         _dragRotation = 0;

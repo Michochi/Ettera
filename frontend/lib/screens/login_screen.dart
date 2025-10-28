@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../providers/user_provider.dart';
 import '../models/user.dart';
+import '../utils/error_handler.dart';
+import '../utils/validators.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -40,17 +42,16 @@ class _LoginScreenState extends State<LoginScreen> {
         if (mounted) {
           context.read<UserProvider>().setUser(user, token: token);
 
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text("Login successful!")));
+          // Show success message using ErrorHandler
+          ErrorHandler.showSuccessSnackBar(context, "Login successful!");
           Navigator.pushReplacementNamed(context, '/home');
         }
       }
     } catch (e) {
+      // Use ErrorHandler to show user-friendly error message
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("Login failed")));
+        ErrorHandler.showErrorSnackBar(context, e);
+        ErrorHandler.logError(e, context: 'Login');
       }
     } finally {
       if (mounted) {
@@ -181,15 +182,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               "Email",
                               Icons.email_outlined,
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Email is required';
-                              }
-                              if (!value.contains('@')) {
-                                return 'Please enter a valid email';
-                              }
-                              return null;
-                            },
+                            validator: Validators.validateEmail,
                           ),
                           const SizedBox(height: 20),
                           TextFormField(
@@ -198,15 +191,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               "Password",
                               Icons.lock_outline,
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Password is required';
-                              }
-                              if (value.length < 6) {
-                                return 'Password must be at least 6 characters';
-                              }
-                              return null;
-                            },
+                            validator: Validators.validatePassword,
                             obscureText: true,
                           ),
                           const SizedBox(height: 32),

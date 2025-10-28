@@ -112,20 +112,6 @@ class CustomFooter extends StatelessWidget {
     );
   }
 
-  Widget _buildFooterLink(String text, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: Text(
-        text,
-        style: TextStyle(
-          color: Colors.white.withOpacity(0.8),
-          fontSize: 14,
-          height: 1.6,
-        ),
-      ),
-    );
-  }
-
   Widget _buildContactItem(IconData icon, String text) {
     return Row(
       children: [

@@ -4,6 +4,7 @@ import '../providers/user_provider.dart';
 import '../services/matching_service.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/custom_drawer.dart';
+import '../utils/error_handler.dart';
 
 class MatchesScreen extends StatefulWidget {
   const MatchesScreen({super.key});
@@ -90,12 +91,10 @@ class _MatchesScreenState extends State<MatchesScreen> {
         });
       }
     } catch (e) {
-      print('Error loading matches: $e');
       if (mounted) {
+        ErrorHandler.showErrorSnackBar(context, e);
+        ErrorHandler.logError(e, context: 'Matches - Load Matches');
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading matches: ${e.toString()}')),
-        );
       }
     }
   }
@@ -138,20 +137,13 @@ class _MatchesScreenState extends State<MatchesScreen> {
       await _matchingService.unmatch(token: token, matchId: matchId);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Unmatched with $matchName'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        ErrorHandler.showSuccessSnackBar(context, 'Unmatched with $matchName');
         _loadMatches(); // Reload the list
       }
     } catch (e) {
-      print('Error unmatching: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+        ErrorHandler.showErrorSnackBar(context, e);
+        ErrorHandler.logError(e, context: 'Matches - Unmatch');
       }
     }
   }

@@ -6,6 +6,7 @@ import '../widgets/app_theme.dart';
 import '../models/message_model.dart';
 import '../services/message_service.dart';
 import '../providers/user_provider.dart';
+import '../utils/error_handler.dart';
 
 class MessagesScreen extends StatefulWidget {
   const MessagesScreen({super.key});
@@ -161,11 +162,11 @@ class _MessagesScreenState extends State<MessagesScreen> {
         _messages = [];
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to load messages: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
+        ErrorHandler.showErrorSnackBar(context, e);
+        ErrorHandler.logError(
+          e,
+          stackTrace: stackTrace,
+          context: 'Messages - Load Messages',
         );
       }
     } finally {
@@ -237,7 +238,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
         }
       }
     } catch (e) {
-      print('Error sending message: $e');
+      if (mounted) {
+        ErrorHandler.logError(e, context: 'Messages - Send Message');
+      }
     } finally {
       setState(() {
         _isSending = false;
@@ -309,11 +312,11 @@ class _MessagesScreenState extends State<MessagesScreen> {
       print('Error loading conversations: $e'); // Debug log
       print('Stack trace: $stackTrace'); // Debug log
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to load conversations: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
+        ErrorHandler.showErrorSnackBar(context, e);
+        ErrorHandler.logError(
+          e,
+          stackTrace: stackTrace,
+          context: 'Messages - Load Conversations',
         );
       }
     } finally {

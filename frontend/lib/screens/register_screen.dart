@@ -4,6 +4,8 @@ import '../services/auth_service.dart';
 import '../widgets/app_theme.dart';
 import '../providers/user_provider.dart';
 import '../models/user.dart';
+import '../utils/error_handler.dart';
+import '../utils/validators.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -32,36 +34,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     if (selectedGender == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please select your gender")),
-      );
+      ErrorHandler.showWarningSnackBar(context, "Please select your gender");
       return;
     }
 
     if (selectedBirthday == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please select your birthday")),
-      );
+      ErrorHandler.showWarningSnackBar(context, "Please select your birthday");
       return;
     }
 
-    // Check if user is at least 18 years old
-    final now = DateTime.now();
-    final age = now.year - selectedBirthday!.year;
-    if (age < 18 ||
-        (age == 18 &&
-            now.isBefore(
-              DateTime(
-                now.year,
-                selectedBirthday!.month,
-                selectedBirthday!.day,
-              ),
-            ))) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("You must be at least 18 years old to register"),
-        ),
-      );
+    // Use Validators utility to check age
+    final ageError = Validators.validateAge(selectedBirthday!);
+    if (ageError != null) {
+      ErrorHandler.showWarningSnackBar(context, ageError);
       return;
     }
 
@@ -83,17 +68,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (mounted) {
           context.read<UserProvider>().setUser(user, token: token);
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Registration successful!")),
-          );
+          // Show success message using ErrorHandler
+          ErrorHandler.showSuccessSnackBar(context, "Registration successful!");
           Navigator.pushReplacementNamed(context, '/home');
         }
       }
     } catch (e) {
+      // Use ErrorHandler to show user-friendly error message
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("Registration failed")));
+        ErrorHandler.showErrorSnackBar(context, e);
+        ErrorHandler.logError(e, context: 'Registration');
       }
     } finally {
       if (mounted) {
@@ -233,15 +217,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               "Full Name",
                               Icons.person_outline,
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Name is required';
-                              }
-                              if (value.length < 2) {
-                                return 'Name must be at least 2 characters';
-                              }
-                              return null;
-                            },
+                            validator: Validators.validateName,
                           ),
                           const SizedBox(height: 18),
                           // Email field
@@ -252,15 +228,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               "Email",
                               Icons.email_outlined,
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Email is required';
-                              }
-                              if (!value.contains('@')) {
-                                return 'Please enter a valid email';
-                              }
-                              return null;
-                            },
+                            validator: Validators.validateEmail,
                           ),
                           const SizedBox(height: 18),
                           // Gender Selection
@@ -439,15 +407,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               "Password",
                               Icons.lock_outline,
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Password is required';
-                              }
-                              if (value.length < 6) {
-                                return 'Password must be at least 6 characters';
-                              }
-                              return null;
-                            },
+                            validator: Validators.validatePassword,
                           ),
                           const SizedBox(height: 18),
                           // Confirm Password field
@@ -458,15 +418,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               "Confirm Password",
                               Icons.lock_outline,
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please confirm your password';
-                              }
-                              if (value != passwordController.text) {
-                                return 'Passwords do not match';
-                              }
-                              return null;
-                            },
+                            validator: (value) =>
+                                Validators.validatePasswordMatch(
+                                  passwordController.text,
+                                  value,
+                                ),
                           ),
                           const SizedBox(height: 32),
                           // Register Button
