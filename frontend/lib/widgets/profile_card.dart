@@ -21,119 +21,168 @@ class ProfileCard extends StatelessWidget {
       offset: position,
       child: Transform.rotate(
         angle: rotation,
-        child: Card(
-          elevation: 8,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+        child: Container(
+          width: 360,
+          height: 520,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.primaryGold.withOpacity(0.2),
+                blurRadius: 30,
+                offset: const Offset(0, 15),
+                spreadRadius: 0,
+              ),
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-          child: Container(
-            width: 350,
-            height: 500,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              image: profile.photoUrl != null && profile.photoUrl!.isNotEmpty
-                  ? DecorationImage(
-                      image: NetworkImage(profile.photoUrl!),
-                      fit: BoxFit.cover,
-                    )
-                  : null,
-              gradient: profile.photoUrl == null || profile.photoUrl!.isEmpty
-                  ? LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        AppTheme.primaryGold.withOpacity(0.3),
-                        AppTheme.primaryGold.withOpacity(0.6),
-                      ],
-                    )
-                  : null,
-            ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
             child: Stack(
               children: [
+                // Background image or gradient
+                Container(
+                  decoration: BoxDecoration(
+                    image:
+                        profile.photoUrl != null && profile.photoUrl!.isNotEmpty
+                        ? DecorationImage(
+                            image: NetworkImage(profile.photoUrl!),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                    gradient:
+                        profile.photoUrl == null || profile.photoUrl!.isEmpty
+                        ? LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              AppTheme.primaryGold.withOpacity(0.4),
+                              AppTheme.primaryGold.withOpacity(0.7),
+                            ],
+                          )
+                        : null,
+                  ),
+                ),
                 // Default avatar icon if no photo
                 if (profile.photoUrl == null || profile.photoUrl!.isEmpty)
                   Center(
-                    child: Icon(
-                      Icons.person,
-                      size: 150,
-                      color: Colors.white.withOpacity(0.5),
+                    child: Container(
+                      padding: const EdgeInsets.all(30),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.person,
+                        size: 120,
+                        color: Colors.white.withOpacity(0.8),
+                      ),
                     ),
                   ),
-                // Gradient overlay
+                // Enhanced gradient overlay
                 Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
                         Colors.transparent,
-                        Colors.black.withOpacity(0.8),
+                        Colors.black.withOpacity(0.3),
+                        Colors.black.withOpacity(0.85),
                       ],
-                      stops: const [0.5, 1.0],
+                      stops: const [0.4, 0.7, 1.0],
                     ),
                   ),
                 ),
-                // Profile info
+                // Profile info with enhanced styling
                 Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(24),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Name and Age
+                      // Name and Age with shadow
                       Row(
                         children: [
                           Expanded(
                             child: Text(
                               '${profile.name}, ${profile.age}',
                               style: const TextStyle(
-                                fontSize: 28,
+                                fontSize: 32,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
+                                letterSpacing: -0.5,
+                                shadows: [
+                                  Shadow(
+                                    color: Colors.black26,
+                                    offset: Offset(0, 2),
+                                    blurRadius: 4,
+                                  ),
+                                ],
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      // Location
+                      const SizedBox(height: 12),
+                      // Location with icon
                       if (profile.location != null)
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.location_on,
-                              color: Colors.white,
-                              size: 20,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.3),
+                              width: 1,
                             ),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                profile.location!,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.white,
-                                ),
-                                overflow: TextOverflow.ellipsis,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.location_on,
+                                color: Colors.white,
+                                size: 18,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  profile.location!,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      const SizedBox(height: 8),
-                      // Bio
+                      const SizedBox(height: 12),
+                      // Bio with better styling
                       if (profile.bio != null && profile.bio!.isNotEmpty)
                         Text(
                           profile.bio!,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.white,
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.white.withOpacity(0.95),
+                            height: 1.4,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                      const SizedBox(height: 12),
-                      // Interests
+                      const SizedBox(height: 14),
+                      // Interests with enhanced design
                       if (profile.interests.isNotEmpty)
                         Wrap(
                           spacing: 8,
@@ -141,19 +190,34 @@ class ProfileCard extends StatelessWidget {
                           children: profile.interests.take(3).map((interest) {
                             return Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
+                                horizontal: 14,
+                                vertical: 8,
                               ),
                               decoration: BoxDecoration(
-                                color: AppTheme.primaryGold.withOpacity(0.8),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    AppTheme.primaryGold,
+                                    AppTheme.primaryGold.withOpacity(0.8),
+                                  ],
+                                ),
                                 borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppTheme.primaryGold.withOpacity(
+                                      0.3,
+                                    ),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
                               ),
                               child: Text(
                                 interest,
                                 style: const TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 13,
                                   color: Colors.white,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.3,
                                 ),
                               ),
                             );
