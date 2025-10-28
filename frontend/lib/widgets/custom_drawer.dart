@@ -89,6 +89,14 @@ class CustomDrawer extends StatelessWidget {
               },
             ),
             ListTile(
+              leading: const Icon(Icons.message),
+              title: const Text('Messages'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/messages');
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.person),
               title: const Text('Profile'),
               onTap: () {

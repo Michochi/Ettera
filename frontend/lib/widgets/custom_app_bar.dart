@@ -55,9 +55,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                   const SizedBox(width: 16),
                   TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/profile'),
+                    onPressed: () => Navigator.pushNamed(context, '/messages'),
                     child: const Text(
-                      'Profile',
+                      'Messages',
                       style: TextStyle(fontSize: 16),
                     ),
                   ),

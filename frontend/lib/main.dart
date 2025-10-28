@@ -5,6 +5,7 @@ import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/browse_screen.dart';
+import 'screens/messages_screen.dart';
 import 'providers/user_provider.dart';
 import 'widgets/app_theme.dart';
 
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
           '/register': (context) => const RegisterScreen(),
           '/profile': (context) => const ProfileScreen(),
           '/browse': (context) => const BrowseScreen(),
+          '/messages': (context) => const MessagesScreen(),
         },
       ),
     );
