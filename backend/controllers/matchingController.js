@@ -102,6 +102,9 @@ exports.likeProfile = async (req, res) => {
           user1: smallerId,
           user2: largerId,
         });
+        console.log('Match created:', match); // Debug log
+      } else {
+        console.log('Match already exists:', match); // Debug log
       }
 
       // Get matched user details

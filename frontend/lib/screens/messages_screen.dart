@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/app_theme.dart';
 import '../models/message_model.dart';
+import '../services/message_service.dart';
+import '../providers/user_provider.dart';
 import 'chat_screen.dart';
 
 class MessagesScreen extends StatefulWidget {
@@ -35,17 +38,59 @@ class _MessagesScreenState extends State<MessagesScreen> {
       _isLoading = true;
     });
 
-    // TODO: Replace with actual API call
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      final userProvider = context.read<UserProvider>();
+      if (userProvider.token == null) {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
 
-    // Dummy data for now
-    setState(() {
-      _conversations = [
-        // Add dummy conversations here when you have the API
-      ];
-      _filteredConversations = _conversations;
-      _isLoading = false;
-    });
+      final messageService = MessageService();
+      final response = await messageService.getConversations(
+        token: userProvider.token!,
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        print('Conversations loaded: ${data.length}'); // Debug log
+        setState(() {
+          _conversations = data.map((json) {
+            return Conversation(
+              id: json['_id'] ?? '',
+              userId: json['userId'] ?? '',
+              userName: json['userName'] ?? 'Unknown',
+              userPhoto: json['userPhoto'],
+              lastMessage: json['lastMessage'] ?? '',
+              lastMessageTime: json['lastMessageTime'] != null
+                  ? DateTime.parse(json['lastMessageTime'])
+                  : DateTime.now(),
+              unreadCount: json['unreadCount'] ?? 0,
+              isOnline: json['isOnline'] ?? false,
+            );
+          }).toList();
+          _filteredConversations = _conversations;
+        });
+      } else {
+        print('Error: Status ${response.statusCode}'); // Debug log
+      }
+    } catch (e, stackTrace) {
+      print('Error loading conversations: $e'); // Debug log
+      print('Stack trace: $stackTrace'); // Debug log
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load conversations: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void _filterConversations(String query) {

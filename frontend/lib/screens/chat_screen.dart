@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../widgets/app_theme.dart';
 import '../providers/user_provider.dart';
 import '../models/message_model.dart';
+import '../services/message_service.dart';
 
 class ChatScreen extends StatefulWidget {
   final String userId;
@@ -47,12 +48,70 @@ class _ChatScreenState extends State<ChatScreen> {
       _isLoading = true;
     });
 
-    // TODO: Replace with actual API call
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      final userProvider = context.read<UserProvider>();
+      if (userProvider.token == null) {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
 
-    setState(() {
-      _isLoading = false;
-    });
+      final messageService = MessageService();
+      final response = await messageService.getMessages(
+        token: userProvider.token!,
+        otherUserId: widget.userId,
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        setState(() {
+          _messages.clear();
+          _messages.addAll(
+            data.map((json) {
+              return Message(
+                id: json['_id'] ?? '',
+                senderId: json['senderId'] ?? '',
+                receiverId: json['receiverId'] ?? '',
+                content: json['content'] ?? '',
+                timestamp: json['createdAt'] != null
+                    ? DateTime.parse(json['createdAt'])
+                    : DateTime.now(),
+                isRead: json['isRead'] ?? false,
+              );
+            }).toList(),
+          );
+        });
+
+        // Scroll to bottom after loading
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (_scrollController.hasClients) {
+            _scrollController.jumpTo(
+              _scrollController.position.maxScrollExtent,
+            );
+          }
+        });
+
+        // Mark messages as read
+        await messageService.markAsRead(
+          token: userProvider.token!,
+          otherUserId: widget.userId,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load messages: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> _sendMessage() async {
@@ -65,32 +124,64 @@ class _ChatScreenState extends State<ChatScreen> {
       _isSending = true;
     });
 
-    // TODO: Replace with actual API call
-    final userProvider = context.read<UserProvider>();
-    final newMessage = Message(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      senderId: userProvider.user!.id,
-      receiverId: widget.userId,
-      content: content,
-      timestamp: DateTime.now(),
-      isRead: false,
-    );
+    try {
+      final userProvider = context.read<UserProvider>();
+      if (userProvider.token == null) {
+        setState(() {
+          _isSending = false;
+        });
+        return;
+      }
 
-    setState(() {
-      _messages.add(newMessage);
-      _isSending = false;
-    });
+      final messageService = MessageService();
+      final response = await messageService.sendMessage(
+        token: userProvider.token!,
+        receiverId: widget.userId,
+        content: content,
+      );
 
-    // Scroll to bottom
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
+      if (response.statusCode == 201) {
+        final json = response.data;
+        final newMessage = Message(
+          id: json['_id'] ?? '',
+          senderId: json['senderId'] ?? userProvider.user!.id,
+          receiverId: json['receiverId'] ?? widget.userId,
+          content: json['content'] ?? content,
+          timestamp: json['createdAt'] != null
+              ? DateTime.parse(json['createdAt'])
+              : DateTime.now(),
+          isRead: json['isRead'] ?? false,
+        );
+
+        setState(() {
+          _messages.add(newMessage);
+        });
+
+        // Scroll to bottom
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (_scrollController.hasClients) {
+            _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to send message: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
-    });
+    } finally {
+      setState(() {
+        _isSending = false;
+      });
+    }
   }
 
   String _formatMessageTime(DateTime timestamp) {

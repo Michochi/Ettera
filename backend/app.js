@@ -15,8 +15,10 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 // Routes
 const authRoutes = require("./routes/auth");
 const matchingRoutes = require("./routes/matching");
+const messageRoutes = require("./routes/messages");
 app.use("/api/auth", authRoutes);
 app.use("/api/matching", matchingRoutes);
+app.use("/api/messages", messageRoutes);
 
 app.get("/", (req, res) => {
   res.send("Backend is running 🚀");
