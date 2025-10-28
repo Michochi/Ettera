@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
-import '../widgets/custom_text_field.dart';
-import '../widgets/custom_container.dart';
-import '../widgets/loading_indicator.dart';
 import '../widgets/app_theme.dart';
 import '../providers/user_provider.dart';
 import '../models/user.dart';
@@ -23,7 +20,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final confirmPasswordController = TextEditingController();
   final _authService = AuthService();
   bool loading = false;
-  String? passwordError;
   String? selectedGender;
   DateTime? selectedBirthday;
 
@@ -115,276 +111,437 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
+  InputDecoration _buildInputDecoration(String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(color: darkGray.withOpacity(0.7)),
+      prefixIcon: Icon(icon, color: primaryGold),
+      filled: true,
+      fillColor: Colors.grey[50],
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: primaryGold, width: 2),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.red.shade300),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.red.shade300, width: 2),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
-      body: SingleChildScrollView(
-        child: Container(
-          constraints: BoxConstraints(
-            minHeight: MediaQuery.of(context).size.height,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              backgroundColor,
+              primaryGold.withOpacity(0.1),
+              backgroundColor,
+            ],
           ),
-          child: Center(
-            child: SafeArea(
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 450),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 30,
-                  vertical: 40,
-                ),
-                child: CustomContainer(
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        Image.asset(
-                          'assets/images/eterra-logo.png',
-                          height: 160,
-                          width: 160,
+        ),
+        child: SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height,
+            ),
+            child: Center(
+              child: SafeArea(
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 520),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 30,
+                    vertical: 40,
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(32),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: primaryGold.withOpacity(0.1),
+                          blurRadius: 30,
+                          offset: const Offset(0, 10),
+                          spreadRadius: 0,
                         ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'Create your account',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: darkGray.withOpacity(0.7),
-                          ),
+                        BoxShadow(
+                          color: darkGray.withOpacity(0.05),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
                         ),
-                        const SizedBox(height: 30),
-                        CustomTextField(
-                          controller: nameController,
-                          label: "Name",
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Name is required';
-                            }
-                            if (value.length < 2) {
-                              return 'Name must be at least 2 characters';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        CustomTextField(
-                          controller: emailController,
-                          label: "Email",
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Email is required';
-                            }
-                            if (!value.contains('@')) {
-                              return 'Please enter a valid email';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        // Gender Selection
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                left: 4,
-                                bottom: 8,
+                      ],
+                    ),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          // Logo with gradient background
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  primaryGold.withOpacity(0.1),
+                                  primaryGold.withOpacity(0.05),
+                                ],
                               ),
-                              child: Text(
-                                'Gender',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: darkGray,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Image.asset(
+                              'assets/images/eterra-logo.png',
+                              height: 100,
+                              width: 100,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            'Create Account',
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: darkGray,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Start your journey to find love',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: darkGray.withOpacity(0.6),
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                          // Name field
+                          TextFormField(
+                            controller: nameController,
+                            decoration: _buildInputDecoration(
+                              "Full Name",
+                              Icons.person_outline,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Name is required';
+                              }
+                              if (value.length < 2) {
+                                return 'Name must be at least 2 characters';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 18),
+                          // Email field
+                          TextFormField(
+                            controller: emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: _buildInputDecoration(
+                              "Email",
+                              Icons.email_outlined,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Email is required';
+                              }
+                              if (!value.contains('@')) {
+                                return 'Please enter a valid email';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 18),
+                          // Gender Selection
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 4,
+                                  bottom: 12,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.wc,
+                                      color: primaryGold,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Gender',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: darkGray,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
-                            Container(
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[50],
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: Colors.grey[300]!),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: RadioListTile<String>(
+                                        title: const Text('Male'),
+                                        value: 'Male',
+                                        groupValue: selectedGender,
+                                        activeColor: primaryGold,
+                                        contentPadding: EdgeInsets.zero,
+                                        dense: true,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            selectedGender = value;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: RadioListTile<String>(
+                                        title: const Text('Female'),
+                                        value: 'Female',
+                                        groupValue: selectedGender,
+                                        activeColor: primaryGold,
+                                        contentPadding: EdgeInsets.zero,
+                                        dense: true,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            selectedGender = value;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: RadioListTile<String>(
+                                        title: const Text('Other'),
+                                        value: 'Other',
+                                        groupValue: selectedGender,
+                                        activeColor: primaryGold,
+                                        contentPadding: EdgeInsets.zero,
+                                        dense: true,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            selectedGender = value;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 18),
+                          // Birthday Selection
+                          InkWell(
+                            onTap: () async {
+                              final DateTime? picked = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime(2000, 1, 1),
+                                firstDate: DateTime(1940),
+                                lastDate: DateTime.now(),
+                                builder: (context, child) {
+                                  return Theme(
+                                    data: Theme.of(context).copyWith(
+                                      colorScheme: ColorScheme.light(
+                                        primary: primaryGold,
+                                        onPrimary: Colors.white,
+                                        onSurface: darkGray,
+                                      ),
+                                    ),
+                                    child: child!,
+                                  );
+                                },
+                              );
+                              if (picked != null) {
+                                setState(() {
+                                  selectedBirthday = picked;
+                                });
+                              }
+                            },
+                            child: Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
+                                horizontal: 20,
+                                vertical: 18,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.grey[100],
-                                borderRadius: BorderRadius.circular(10),
+                                color: Colors.grey[50],
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey[300]!),
                               ),
                               child: Row(
                                 children: [
+                                  Icon(Icons.cake_outlined, color: primaryGold),
+                                  const SizedBox(width: 16),
                                   Expanded(
-                                    child: RadioListTile<String>(
-                                      title: const Text('Male'),
-                                      value: 'Male',
-                                      groupValue: selectedGender,
-                                      activeColor: primaryGold,
-                                      contentPadding: EdgeInsets.zero,
-                                      dense: true,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          selectedGender = value;
-                                        });
-                                      },
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Birthday',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: darkGray.withOpacity(0.6),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          selectedBirthday == null
+                                              ? 'Select your birthday'
+                                              : '${selectedBirthday!.day}/${selectedBirthday!.month}/${selectedBirthday!.year}',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: selectedBirthday == null
+                                                ? darkGray.withOpacity(0.5)
+                                                : darkGray,
+                                            fontWeight: selectedBirthday == null
+                                                ? FontWeight.normal
+                                                : FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  Expanded(
-                                    child: RadioListTile<String>(
-                                      title: const Text('Female'),
-                                      value: 'Female',
-                                      groupValue: selectedGender,
-                                      activeColor: primaryGold,
-                                      contentPadding: EdgeInsets.zero,
-                                      dense: true,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          selectedGender = value;
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: RadioListTile<String>(
-                                      title: const Text('Other'),
-                                      value: 'Other',
-                                      groupValue: selectedGender,
-                                      activeColor: primaryGold,
-                                      contentPadding: EdgeInsets.zero,
-                                      dense: true,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          selectedGender = value;
-                                        });
-                                      },
-                                    ),
+                                  Icon(
+                                    Icons.arrow_drop_down,
+                                    color: darkGray.withOpacity(0.5),
                                   ),
                                 ],
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        // Birthday Selection
-                        InkWell(
-                          onTap: () async {
-                            final DateTime? picked = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime(2000, 1, 1),
-                              firstDate: DateTime(1940),
-                              lastDate: DateTime.now(),
-                              builder: (context, child) {
-                                return Theme(
-                                  data: Theme.of(context).copyWith(
-                                    colorScheme: ColorScheme.light(
-                                      primary: primaryGold,
-                                      onPrimary: Colors.white,
-                                      onSurface: darkGray,
+                          ),
+                          const SizedBox(height: 18),
+                          // Password field
+                          TextFormField(
+                            controller: passwordController,
+                            obscureText: true,
+                            decoration: _buildInputDecoration(
+                              "Password",
+                              Icons.lock_outline,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Password is required';
+                              }
+                              if (value.length < 6) {
+                                return 'Password must be at least 6 characters';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 18),
+                          // Confirm Password field
+                          TextFormField(
+                            controller: confirmPasswordController,
+                            obscureText: true,
+                            decoration: _buildInputDecoration(
+                              "Confirm Password",
+                              Icons.lock_outline,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please confirm your password';
+                              }
+                              if (value != passwordController.text) {
+                                return 'Passwords do not match';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 32),
+                          // Register Button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: loading ? null : register,
+                              style:
+                                  ElevatedButton.styleFrom(
+                                    backgroundColor: primaryGold,
+                                    foregroundColor: Colors.white,
+                                    elevation: 0,
+                                    shadowColor: primaryGold.withOpacity(0.3),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ).copyWith(
+                                    overlayColor: WidgetStateProperty.all(
+                                      Colors.white.withOpacity(0.1),
                                     ),
                                   ),
-                                  child: child!,
-                                );
-                              },
-                            );
-                            if (picked != null) {
-                              setState(() {
-                                selectedBirthday = picked;
-                              });
-                            }
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 16,
+                              child: loading
+                                  ? const SizedBox(
+                                      height: 24,
+                                      width: 24,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 3,
+                                      ),
+                                    )
+                                  : const Text(
+                                      "Create Account",
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
                             ),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[100],
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  selectedBirthday == null
-                                      ? 'Select Birthday'
-                                      : '${selectedBirthday!.day}/${selectedBirthday!.month}/${selectedBirthday!.year}',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: selectedBirthday == null
-                                        ? darkGray.withOpacity(0.6)
-                                        : darkGray,
+                          ),
+                          const SizedBox(height: 24),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Already have an account? ",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: darkGray.withOpacity(0.7),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pushReplacementNamed(
+                                  context,
+                                  '/login',
+                                ),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: primaryGold,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
                                   ),
                                 ),
-                                Icon(Icons.calendar_today, color: primaryGold),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        CustomTextField(
-                          controller: passwordController,
-                          label: "Password",
-                          obscureText: true,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Password is required';
-                            }
-                            if (value.length < 6) {
-                              return 'Password must be at least 6 characters';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        CustomTextField(
-                          controller: confirmPasswordController,
-                          label: "Confirm Password",
-                          obscureText: true,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please confirm your password';
-                            }
-                            if (value != passwordController.text) {
-                              return 'Passwords do not match';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 30),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: loading ? null : register,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: primaryGold,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            child: loading
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: LoadingIndicator(),
-                                  )
-                                : const Text(
-                                    "Register",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
+                                child: const Text(
+                                  "Login",
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
                                   ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                        TextButton(
-                          onPressed: () =>
-                              Navigator.pushReplacementNamed(context, '/login'),
-                          style: TextButton.styleFrom(
-                            foregroundColor: primaryGold,
-                          ),
-                          child: const Text(
-                            "Already have an account? Login",
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),

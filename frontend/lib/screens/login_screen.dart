@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
-import '../widgets/custom_text_field.dart';
-import '../widgets/custom_container.dart';
 import '../providers/user_provider.dart';
 import '../models/user.dart';
 
@@ -63,143 +61,225 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final inputDecoration = (String label) => InputDecoration(
+    final inputDecoration = (String label, IconData icon) => InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(color: darkGray),
+      labelStyle: TextStyle(color: darkGray.withOpacity(0.7)),
+      prefixIcon: Icon(icon, color: primaryGold),
+      filled: true,
+      fillColor: Colors.grey[50],
       enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: primaryGold),
-        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+        borderRadius: BorderRadius.circular(12),
       ),
       focusedBorder: OutlineInputBorder(
         borderSide: BorderSide(color: primaryGold, width: 2),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
       ),
       errorBorder: OutlineInputBorder(
         borderSide: BorderSide(color: Colors.red.shade300),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderSide: BorderSide(color: Colors.red.shade300, width: 2),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
       ),
       errorStyle: const TextStyle(fontSize: 12, height: 0.8),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
     );
 
     return Scaffold(
-      backgroundColor: backgroundColor,
-      body: SingleChildScrollView(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight: MediaQuery.of(context).size.height,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              backgroundColor,
+              primaryGold.withOpacity(0.1),
+              backgroundColor,
+            ],
           ),
-          child: Center(
-            child: SafeArea(
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 450),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 30,
-                  vertical: 40,
-                ),
+        ),
+        child: SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height,
+            ),
+            child: Center(
+              child: SafeArea(
                 child: Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: darkGray.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                  constraints: const BoxConstraints(maxWidth: 480),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 30,
+                    vertical: 40,
                   ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        Image.asset(
-                          'assets/images/eterra-logo.png',
-                          height: 160,
-                          width: 160,
+                  child: Container(
+                    padding: const EdgeInsets.all(32),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: primaryGold.withOpacity(0.1),
+                          blurRadius: 30,
+                          offset: const Offset(0, 10),
+                          spreadRadius: 0,
                         ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'Find your perfect match',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: darkGray.withOpacity(0.7),
-                          ),
-                        ),
-                        const SizedBox(height: 30),
-                        // Login Form
-                        TextFormField(
-                          controller: emailController,
-                          decoration: inputDecoration("Email"),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Email is required';
-                            }
-                            if (!value.contains('@')) {
-                              return 'Please enter a valid email';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        TextFormField(
-                          controller: passwordController,
-                          decoration: inputDecoration("Password"),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Password is required';
-                            }
-                            if (value.length < 6) {
-                              return 'Password must be at least 6 characters';
-                            }
-                            return null;
-                          },
-                          obscureText: true,
-                        ),
-                        const SizedBox(height: 30),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: loading ? null : login,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: primaryGold,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            child: loading
-                                ? const CircularProgressIndicator(
-                                    color: Colors.white,
-                                  )
-                                : const Text(
-                                    "Login",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        TextButton(
-                          onPressed: () =>
-                              Navigator.pushNamed(context, '/register'),
-                          style: TextButton.styleFrom(
-                            foregroundColor: primaryGold,
-                          ),
-                          child: const Text(
-                            "Don't have an account? Register",
-                            style: TextStyle(fontSize: 16),
-                          ),
+                        BoxShadow(
+                          color: darkGray.withOpacity(0.05),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
                         ),
                       ],
+                    ),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          // Logo with gradient background
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  primaryGold.withOpacity(0.1),
+                                  primaryGold.withOpacity(0.05),
+                                ],
+                              ),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Image.asset(
+                              'assets/images/eterra-logo.png',
+                              height: 120,
+                              width: 120,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            'Welcome Back',
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: darkGray,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Find your perfect match',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: darkGray.withOpacity(0.6),
+                            ),
+                          ),
+                          const SizedBox(height: 40),
+                          // Login Form
+                          TextFormField(
+                            controller: emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: inputDecoration(
+                              "Email",
+                              Icons.email_outlined,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Email is required';
+                              }
+                              if (!value.contains('@')) {
+                                return 'Please enter a valid email';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          TextFormField(
+                            controller: passwordController,
+                            decoration: inputDecoration(
+                              "Password",
+                              Icons.lock_outline,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Password is required';
+                              }
+                              if (value.length < 6) {
+                                return 'Password must be at least 6 characters';
+                              }
+                              return null;
+                            },
+                            obscureText: true,
+                          ),
+                          const SizedBox(height: 32),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: loading ? null : login,
+                              style:
+                                  ElevatedButton.styleFrom(
+                                    backgroundColor: primaryGold,
+                                    foregroundColor: Colors.white,
+                                    elevation: 0,
+                                    shadowColor: primaryGold.withOpacity(0.3),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ).copyWith(
+                                    overlayColor: WidgetStateProperty.all(
+                                      Colors.white.withOpacity(0.1),
+                                    ),
+                                  ),
+                              child: loading
+                                  ? const SizedBox(
+                                      height: 24,
+                                      width: 24,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 3,
+                                      ),
+                                    )
+                                  : const Text(
+                                      "Login",
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Don't have an account? ",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: darkGray.withOpacity(0.7),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.pushNamed(context, '/register'),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: primaryGold,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                  ),
+                                ),
+                                child: const Text(
+                                  "Register",
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
