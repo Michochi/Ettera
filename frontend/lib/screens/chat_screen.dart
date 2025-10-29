@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../widgets/app_theme.dart';
 import '../providers/user_provider.dart';
 import '../models/message_model.dart';
@@ -30,175 +29,17 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<Message> _messages = [];
   bool _isLoading = false;
   bool _isSending = false;
-  IO.Socket? _socket;
-  bool _isUserTyping = false;
-  bool _isConnected = false;
 
   @override
   void initState() {
     super.initState();
     _loadMessages();
-    _initializeSocket();
-  }
-
-  void _initializeSocket() {
-    final userProvider = context.read<UserProvider>();
-    final currentUserId = userProvider.user?.id;
-
-    debugPrint('🔧 Initializing socket...');
-    debugPrint('   User ID: $currentUserId');
-
-    if (currentUserId == null) {
-      debugPrint('❌ Cannot initialize socket: User ID is null');
-      return;
-    }
-
-    try {
-      debugPrint('🔧 Creating socket instance...');
-      // Initialize Socket.IO connection
-      _socket = IO.io(
-        'http://localhost:4000',
-        IO.OptionBuilder()
-            .setTransports(['websocket'])
-            .disableAutoConnect()
-            .build(),
-      );
-
-      debugPrint('✅ Socket instance created');
-
-      // Connection events
-      _socket!.onConnect((_) {
-        debugPrint('✅ Socket connected');
-        setState(() {
-          _isConnected = true;
-        });
-
-        // Join the socket with user ID
-        _socket!.emit('join', currentUserId);
-        debugPrint('📤 Emitted join event with userId: $currentUserId');
-      });
-
-      _socket!.onConnectError((error) {
-        debugPrint('❌ Socket connection error: $error');
-        setState(() {
-          _isConnected = false;
-        });
-      });
-
-      _socket!.onDisconnect((_) {
-        debugPrint('🔌 Socket disconnected');
-        setState(() {
-          _isConnected = false;
-        });
-      });
-
-      // Listen for incoming messages
-      _socket!.on('receive_message', (data) {
-        debugPrint('📥 Received message: $data');
-
-        try {
-          final newMessage = Message(
-            id: data['_id'] ?? '',
-            senderId: data['senderId'] ?? '',
-            receiverId: data['receiverId'] ?? '',
-            content: data['content'] ?? '',
-            timestamp: data['createdAt'] != null
-                ? DateTime.parse(data['createdAt'])
-                : DateTime.now(),
-            isRead: data['isRead'] ?? false,
-          );
-
-          setState(() {
-            _messages.add(newMessage);
-          });
-
-          // Auto-scroll to bottom
-          Future.delayed(const Duration(milliseconds: 100), () {
-            if (_scrollController.hasClients) {
-              _scrollController.animateTo(
-                _scrollController.position.maxScrollExtent,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOut,
-              );
-            }
-          });
-
-          // Mark as read if receiver is viewing chat
-          if (data['senderId'] == widget.userId) {
-            final messageService = MessageService();
-            messageService.markAsRead(
-              token: userProvider.token!,
-              otherUserId: widget.userId,
-            );
-          }
-        } catch (e) {
-          debugPrint('❌ Error processing received message: $e');
-        }
-      });
-
-      // Listen for typing indicator
-      _socket!.on('user_typing', (data) {
-        debugPrint('⌨️ User typing: $data');
-        if (data['userId'] == widget.userId) {
-          setState(() {
-            _isUserTyping = true;
-          });
-
-          // Hide typing indicator after 3 seconds
-          Future.delayed(const Duration(seconds: 3), () {
-            if (mounted) {
-              setState(() {
-                _isUserTyping = false;
-              });
-            }
-          });
-        }
-      });
-
-      // Listen for user online/offline status
-      _socket!.on('user_online', (userId) {
-        debugPrint('🟢 User online: $userId');
-        // You can update UI to show online status if needed
-      });
-
-      _socket!.on('user_offline', (userId) {
-        debugPrint('🔴 User offline: $userId');
-        // You can update UI to show offline status if needed
-      });
-
-      // Connect to the socket server
-      debugPrint('🔄 Calling socket.connect()...');
-      _socket!.connect();
-      debugPrint('✅ Socket.connect() called - waiting for connection...');
-    } catch (e) {
-      debugPrint('❌ Error initializing socket: $e');
-      debugPrint('❌ Stack trace: ${StackTrace.current}');
-    }
-  }
-
-  void _handleTyping() {
-    if (_socket != null && _isConnected) {
-      final userProvider = context.read<UserProvider>();
-      _socket!.emit('typing', {
-        'userId': userProvider.user?.id,
-        'receiverId': widget.userId,
-      });
-      debugPrint('⌨️ Emitted typing event to ${widget.userId}');
-    }
   }
 
   @override
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
-
-    // Disconnect socket
-    if (_socket != null) {
-      debugPrint('🔌 Disconnecting socket...');
-      _socket!.disconnect();
-      _socket!.dispose();
-    }
-
     super.dispose();
   }
 
@@ -312,36 +153,9 @@ class _ChatScreenState extends State<ChatScreen> {
           isRead: json['isRead'] ?? false,
         );
 
-        // Add message to local list
         setState(() {
           _messages.add(newMessage);
         });
-
-        // Send via WebSocket for real-time delivery to receiver
-        if (_socket != null && _isConnected) {
-          debugPrint('\n📤 Attempting to send via WebSocket:');
-          debugPrint('   Socket connected: $_isConnected');
-          debugPrint('   Receiver ID: ${widget.userId}');
-          debugPrint('   Sender ID: ${newMessage.senderId}');
-          debugPrint('   Message content: ${newMessage.content}');
-
-          _socket!.emit('send_message', {
-            'receiverId': widget.userId,
-            'message': {
-              '_id': newMessage.id,
-              'senderId': newMessage.senderId,
-              'receiverId': newMessage.receiverId,
-              'content': newMessage.content,
-              'createdAt': newMessage.timestamp.toIso8601String(),
-              'isRead': newMessage.isRead,
-            },
-          });
-          debugPrint('✅ WebSocket emit completed');
-        } else {
-          debugPrint('❌ Cannot send via WebSocket:');
-          debugPrint('   Socket null: ${_socket == null}');
-          debugPrint('   Socket connected: $_isConnected');
-        }
 
         // Scroll to bottom
         Future.delayed(const Duration(milliseconds: 100), () {
@@ -355,7 +169,6 @@ class _ChatScreenState extends State<ChatScreen> {
         });
       }
     } catch (e) {
-      debugPrint('❌ Error sending message: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -577,35 +390,6 @@ class _ChatScreenState extends State<ChatScreen> {
                       },
                     ),
             ),
-            // Typing indicator
-            if (_isUserTyping)
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 8,
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      '${widget.userName} is typing',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppTheme.darkGray.withOpacity(0.6),
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: AppTheme.primaryGold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             // Message input
             Container(
               padding: const EdgeInsets.all(16),
@@ -656,7 +440,6 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
                           maxLines: null,
                           textCapitalization: TextCapitalization.sentences,
-                          onChanged: (_) => _handleTyping(),
                           onSubmitted: (_) => _sendMessage(),
                         ),
                       ),
