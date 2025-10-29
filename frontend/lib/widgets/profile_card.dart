@@ -127,6 +127,28 @@ class ProfileCard extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          // Gender icon
+                          if (profile.gender != null)
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.5),
+                                  width: 2,
+                                ),
+                              ),
+                              child: Icon(
+                                profile.gender?.toLowerCase() == 'male'
+                                    ? Icons.male
+                                    : profile.gender?.toLowerCase() == 'female'
+                                    ? Icons.female
+                                    : Icons.transgender,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                            ),
                         ],
                       ),
                       const SizedBox(height: 12),

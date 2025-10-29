@@ -27,7 +27,7 @@ exports.getProfiles = async (req, res) => {
       userId: { $nin: excludedIds },
     })
       .limit(limit)
-      .populate("userId", "name email photoUrl bio");
+      .populate("userId", "name email photoUrl bio gender");
 
     // Transform the data
     const profilesData = profiles.map((profile) => ({
@@ -39,6 +39,7 @@ exports.getProfiles = async (req, res) => {
       photoUrl: profile.userId.photoUrl,
       location: profile.location,
       interests: profile.interests || [],
+      gender: profile.userId.gender,
     }));
 
     res.json({ profiles: profilesData });

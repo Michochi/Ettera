@@ -7,6 +7,7 @@ class ProfileModel {
   final String? photoUrl;
   final String? location;
   final List<String> interests;
+  final String? gender;
 
   ProfileModel({
     required this.id,
@@ -16,6 +17,7 @@ class ProfileModel {
     this.photoUrl,
     this.location,
     this.interests = const [],
+    this.gender,
   });
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class ProfileModel {
       interests: json['interests'] != null
           ? List<String>.from(json['interests'])
           : [],
+      gender: json['gender'],
     );
   }
 
@@ -41,6 +44,7 @@ class ProfileModel {
       'photoUrl': photoUrl,
       'location': location,
       'interests': interests,
+      'gender': gender,
     };
   }
 }

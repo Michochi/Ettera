@@ -21,11 +21,17 @@ class BrowseScreen extends StatefulWidget {
 class _BrowseScreenState extends State<BrowseScreen> {
   final MatchingService _matchingService = MatchingService();
   List<ProfileModel> _profiles = [];
+  List<ProfileModel> _filteredProfiles = [];
   bool _isLoading = true;
   String? _error;
   Offset _dragPosition = Offset.zero;
   double _dragRotation = 0;
   bool _isDragging = false;
+
+  // Filter states
+  String? _selectedGender;
+  RangeValues _ageRange = const RangeValues(18, 60);
+  bool _filtersApplied = false;
 
   @override
   void initState() {
@@ -74,6 +80,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
           _profiles = profilesJson
               .map((json) => ProfileModel.fromJson(json))
               .toList();
+          _applyFilters();
           _isLoading = false;
         });
       } else {
@@ -92,6 +99,229 @@ class _BrowseScreenState extends State<BrowseScreen> {
         });
       }
     }
+  }
+
+  void _applyFilters() {
+    setState(() {
+      _filteredProfiles = _profiles.where((profile) {
+        // Filter by gender
+        if (_selectedGender != null && profile.gender != null) {
+          if (profile.gender!.toLowerCase() != _selectedGender!.toLowerCase()) {
+            return false;
+          }
+        }
+        // Filter by age
+        if (profile.age < _ageRange.start || profile.age > _ageRange.end) {
+          return false;
+        }
+        return true;
+      }).toList();
+
+      _filtersApplied =
+          _selectedGender != null || _ageRange != const RangeValues(18, 60);
+    });
+  }
+
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        String? tempGender = _selectedGender;
+        RangeValues tempAgeRange = _ageRange;
+
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.filter_list, color: AppTheme.primaryGold),
+                        const SizedBox(width: 12),
+                        Text(
+                          'Filter Profiles',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.darkGray,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    // Gender Filter
+                    Text(
+                      'Gender',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.darkGray,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 12,
+                      children: [
+                        FilterChip(
+                          label: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.people, size: 18),
+                              SizedBox(width: 6),
+                              Text('All'),
+                            ],
+                          ),
+                          selected: tempGender == null,
+                          onSelected: (selected) {
+                            setDialogState(() {
+                              tempGender = null;
+                            });
+                          },
+                          selectedColor: AppTheme.primaryGold.withOpacity(0.3),
+                          checkmarkColor: AppTheme.primaryGold,
+                        ),
+                        FilterChip(
+                          label: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.male, size: 18),
+                              SizedBox(width: 6),
+                              Text('Male'),
+                            ],
+                          ),
+                          selected: tempGender?.toLowerCase() == 'male',
+                          onSelected: (selected) {
+                            setDialogState(() {
+                              tempGender = selected ? 'Male' : null;
+                            });
+                          },
+                          selectedColor: AppTheme.primaryGold.withOpacity(0.3),
+                          checkmarkColor: AppTheme.primaryGold,
+                        ),
+                        FilterChip(
+                          label: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.female, size: 18),
+                              SizedBox(width: 6),
+                              Text('Female'),
+                            ],
+                          ),
+                          selected: tempGender?.toLowerCase() == 'female',
+                          onSelected: (selected) {
+                            setDialogState(() {
+                              tempGender = selected ? 'Female' : null;
+                            });
+                          },
+                          selectedColor: AppTheme.primaryGold.withOpacity(0.3),
+                          checkmarkColor: AppTheme.primaryGold,
+                        ),
+                        FilterChip(
+                          label: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.transgender, size: 18),
+                              SizedBox(width: 6),
+                              Text('Other'),
+                            ],
+                          ),
+                          selected: tempGender?.toLowerCase() == 'other',
+                          onSelected: (selected) {
+                            setDialogState(() {
+                              tempGender = selected ? 'Other' : null;
+                            });
+                          },
+                          selectedColor: AppTheme.primaryGold.withOpacity(0.3),
+                          checkmarkColor: AppTheme.primaryGold,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    // Age Filter
+                    Text(
+                      'Age Range: ${tempAgeRange.start.round()} - ${tempAgeRange.end.round()}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.darkGray,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    RangeSlider(
+                      values: tempAgeRange,
+                      min: 18,
+                      max: 100,
+                      divisions: 82,
+                      activeColor: AppTheme.primaryGold,
+                      inactiveColor: AppTheme.primaryGold.withOpacity(0.2),
+                      labels: RangeLabels(
+                        tempAgeRange.start.round().toString(),
+                        tempAgeRange.end.round().toString(),
+                      ),
+                      onChanged: (RangeValues values) {
+                        setDialogState(() {
+                          tempAgeRange = values;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    // Action Buttons
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              side: BorderSide(color: Colors.grey[400]!),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text('Cancel'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                _selectedGender = tempGender;
+                                _ageRange = tempAgeRange;
+                                _applyFilters();
+                              });
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              backgroundColor: AppTheme.primaryGold,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text('Apply'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   void _onPanStart(DragStartDetails details) {
@@ -128,7 +358,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
   }
 
   Future<void> _handleLike() async {
-    if (_profiles.isEmpty) return;
+    if (_filteredProfiles.isEmpty) return;
 
     // Show dragging indicator
     setState(() {
@@ -140,7 +370,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
     // Wait for animation to complete
     await Future.delayed(const Duration(milliseconds: 300));
 
-    final profile = _profiles.first;
+    final profile = _filteredProfiles.first;
     final userProvider = context.read<UserProvider>();
     final token = userProvider.token;
 
@@ -159,7 +389,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
 
         // Remove the profile first
         setState(() {
-          _profiles.removeAt(0);
+          _filteredProfiles.removeAt(0);
           _dragPosition = Offset.zero;
           _dragRotation = 0;
           _isDragging = false;
@@ -173,7 +403,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
       } else {
         // Just remove the profile if no match
         setState(() {
-          _profiles.removeAt(0);
+          _filteredProfiles.removeAt(0);
           _dragPosition = Offset.zero;
           _dragRotation = 0;
           _isDragging = false;
@@ -193,7 +423,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
   }
 
   Future<void> _handlePass() async {
-    if (_profiles.isEmpty) return;
+    if (_filteredProfiles.isEmpty) return;
 
     // Show dragging indicator
     setState(() {
@@ -205,7 +435,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
     // Wait for animation to complete
     await Future.delayed(const Duration(milliseconds: 300));
 
-    final profile = _profiles.first;
+    final profile = _filteredProfiles.first;
     final userProvider = context.read<UserProvider>();
     final token = userProvider.token;
 
@@ -216,7 +446,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
 
       // Remove the profile from the list
       setState(() {
-        _profiles.removeAt(0);
+        _filteredProfiles.removeAt(0);
         _dragPosition = Offset.zero;
         _dragRotation = 0;
         _isDragging = false;
@@ -442,7 +672,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
                         ),
                       ),
                     )
-                  : _profiles.isEmpty
+                  : _filteredProfiles.isEmpty
                   ? Center(
                       child: Container(
                         margin: const EdgeInsets.all(32),
@@ -475,7 +705,9 @@ class _BrowseScreenState extends State<BrowseScreen> {
                             ),
                             const SizedBox(height: 24),
                             Text(
-                              'No more profiles',
+                              _filtersApplied
+                                  ? 'No matching profiles'
+                                  : 'No more profiles',
                               style: TextStyle(
                                 color: AppTheme.darkGray,
                                 fontSize: 24,
@@ -484,13 +716,85 @@ class _BrowseScreenState extends State<BrowseScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Check back later for new matches',
+                              _filtersApplied
+                                  ? 'Try adjusting your filters to see more profiles'
+                                  : 'Check back later for new matches',
+                              textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: AppTheme.darkGray.withOpacity(0.6),
                                 fontSize: 16,
                               ),
                             ),
                             const SizedBox(height: 32),
+                            // Filter Button
+                            ElevatedButton.icon(
+                              onPressed: _showFilterDialog,
+                              icon: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  Icon(
+                                    Icons.filter_list,
+                                    color: _filtersApplied
+                                        ? Colors.white
+                                        : AppTheme.primaryGold,
+                                  ),
+                                  if (_filtersApplied)
+                                    Positioned(
+                                      right: -4,
+                                      top: -4,
+                                      child: Container(
+                                        width: 10,
+                                        height: 10,
+                                        decoration: BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 2,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              label: Text(
+                                _filtersApplied
+                                    ? 'Change Filters'
+                                    : 'Filter Profiles',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: _filtersApplied
+                                      ? Colors.white
+                                      : AppTheme.primaryGold,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _filtersApplied
+                                    ? AppTheme.primaryGold
+                                    : Colors.white,
+                                foregroundColor: _filtersApplied
+                                    ? Colors.white
+                                    : AppTheme.primaryGold,
+                                elevation: 4,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 14,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  side: BorderSide(
+                                    color: AppTheme.primaryGold,
+                                    width: 2,
+                                  ),
+                                ),
+                                shadowColor: AppTheme.primaryGold.withOpacity(
+                                  0.3,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            // Refresh Button
                             ElevatedButton.icon(
                               onPressed: _loadProfiles,
                               icon: const Icon(Icons.refresh),
@@ -534,6 +838,67 @@ class _BrowseScreenState extends State<BrowseScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 20),
+              // Filter Button at the top
+              Container(
+                margin: const EdgeInsets.only(bottom: 20),
+                child: ElevatedButton.icon(
+                  onPressed: _showFilterDialog,
+                  icon: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Icon(
+                        Icons.filter_list,
+                        color: _filtersApplied
+                            ? Colors.white
+                            : AppTheme.primaryGold,
+                      ),
+                      // Filter indicator badge
+                      if (_filtersApplied)
+                        Positioned(
+                          right: -4,
+                          top: -4,
+                          child: Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  label: Text(
+                    _filtersApplied ? 'Filters Active' : 'Filter Profiles',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: _filtersApplied
+                          ? Colors.white
+                          : AppTheme.primaryGold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _filtersApplied
+                        ? AppTheme.primaryGold
+                        : Colors.white,
+                    foregroundColor: _filtersApplied
+                        ? Colors.white
+                        : AppTheme.primaryGold,
+                    elevation: 4,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 14,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      side: BorderSide(color: AppTheme.primaryGold, width: 2),
+                    ),
+                    shadowColor: AppTheme.primaryGold.withOpacity(0.3),
+                  ),
+                ),
+              ),
               Stack(
                 alignment: Alignment.center,
                 clipBehavior: Clip.none,
@@ -597,7 +962,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
                         ..translate(_dragPosition.dx, _dragPosition.dy)
                         ..rotateZ(_dragRotation),
                       child: ProfileCard(
-                        profile: _profiles.first,
+                        profile: _filteredProfiles.first,
                         position: Offset.zero,
                         rotation: 0,
                       ),
