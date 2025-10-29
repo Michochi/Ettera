@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => UserProvider()..loadUserFromPreferences(),
       child: MaterialApp(
-        title: 'Dating App',
+        title: 'Eterra - Find Your Perfect Match',
         theme: AppTheme.theme,
         debugShowCheckedModeBanner: false,
         home: const SplashScreen(),
