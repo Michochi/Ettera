@@ -24,12 +24,13 @@ exports.getConversations = async (req, res) => {
     const userId = req.userId;
     console.log('Getting conversations for user:', userId); // Debug log
 
-    // Find all matches for this user
+    // Find all ACTIVE matches for this user
     const matches = await Match.find({
-      $or: [{ user1: userId }, { user2: userId }]
+      $or: [{ user1: userId }, { user2: userId }],
+      active: true // Only get active matches
     }).populate('user1 user2', 'name email photoUrl');
 
-    console.log('Found matches:', matches.length); // Debug log
+    console.log('Found active matches:', matches.length); // Debug log
 
     // Get conversation details for each match
     const conversations = await Promise.all(

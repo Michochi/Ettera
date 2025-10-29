@@ -152,6 +152,19 @@ class SocketService {
     _socket?.off('user_offline');
   }
 
+  /// Listen for unmatch events
+  /// [callback] - Function to call when user gets unmatched
+  void onUserUnmatched(Function(String userId) callback) {
+    _socket?.on('user_unmatched', (data) {
+      callback(data['userId']);
+    });
+  }
+
+  /// Remove unmatch listener
+  void offUnmatchListener() {
+    _socket?.off('user_unmatched');
+  }
+
   /// Disconnect from socket server
   void disconnect() {
     if (_socket != null) {

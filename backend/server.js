@@ -14,6 +14,10 @@ const io = new Server(server, {
 // Store active users: userId -> socketId
 const activeUsers = new Map();
 
+// Make io accessible to other modules
+app.set('io', io);
+app.set('activeUsers', activeUsers);
+
 io.on("connection", (socket) => {
   console.log("🟢 User connected:", socket.id);
 

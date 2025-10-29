@@ -99,6 +99,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
     _typingTimer?.cancel();
     _socketService.offReceiveMessage();
     _socketService.offTypingListeners();
+    _socketService.offUnmatchListener();
     super.dispose();
   }
 
@@ -187,6 +188,44 @@ class _MessagesScreenState extends State<MessagesScreen> {
         setState(() {
           _isOtherUserTyping = false;
         });
+      }
+    });
+
+    // Listen for unmatch events
+    _socketService.onUserUnmatched((userId) {
+      print('👋 User $userId unmatched with you');
+
+      // Remove conversation from list
+      setState(() {
+        _conversations.removeWhere((conv) => conv.userId == userId);
+        _filteredConversations.removeWhere((conv) => conv.userId == userId);
+
+        // If currently chatting with this user, clear the chat
+        if (_selectedConversation != null &&
+            _selectedConversation!.userId == userId) {
+          _selectedConversation = null;
+          _messages.clear();
+          _showMobileChatView = false;
+        }
+      });
+
+      // Reload conversations from backend to ensure consistency
+      _loadConversations();
+
+      // Show snackbar notification
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('A user has unmatched with you'),
+            backgroundColor: Colors.orange,
+            duration: const Duration(seconds: 3),
+            action: SnackBarAction(
+              label: 'OK',
+              textColor: Colors.white,
+              onPressed: () {},
+            ),
+          ),
+        );
       }
     });
   }

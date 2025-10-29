@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const Profile = require("../models/Profile");
 const Match = require("../models/Match");
+const Message = require("../models/Message");
 
 // Get profiles to browse (excluding already seen profiles)
 exports.getProfiles = async (req, res) => {
@@ -209,6 +210,29 @@ exports.unmatch = async (req, res) => {
       { user1: smallerId, user2: largerId },
       { active: false }
     );
+
+    // Delete all messages between the two users
+    await Message.deleteMany({
+      $or: [
+        { senderId: userId, receiverId: matchId },
+        { senderId: matchId, receiverId: userId }
+      ]
+    });
+
+    console.log(`🗑️ Unmatched: ${userId} and ${matchId}, messages deleted`);
+
+    // Emit socket event to notify the other user
+    const io = req.app.get('io');
+    const activeUsers = req.app.get('activeUsers');
+    if (io && activeUsers) {
+      const matchSocketId = activeUsers.get(matchId);
+      if (matchSocketId) {
+        io.to(matchSocketId).emit('user_unmatched', {
+          userId: userId,
+          message: 'You have been unmatched'
+        });
+      }
+    }
 
     res.json({ message: "Unmatched successfully" });
   } catch (err) {
