@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/user.dart';
+import '../services/socket_service.dart';
 
 class UserProvider extends ChangeNotifier {
   User? _user;
@@ -27,12 +28,19 @@ class UserProvider extends ChangeNotifier {
         _token = token;
         final userMap = json.decode(userJson) as Map<String, dynamic>;
         _user = User.fromJson(userMap);
+
+        // Connect to socket server
+        SocketService().connect(_user!.id);
+
+        _isInitialized = true;
+        notifyListeners();
         print('User loaded from preferences: ${_user?.email}');
+      } else {
+        _isInitialized = true;
+        notifyListeners();
       }
     } catch (e) {
       print('Error loading user from preferences: $e');
-    } finally {
-      // Always set initialized to true, even on error
       _isInitialized = true;
       notifyListeners();
     }
@@ -55,6 +63,9 @@ class UserProvider extends ChangeNotifier {
     } catch (e) {
       print('Error saving user to preferences: $e');
     }
+
+    // Connect to socket server
+    SocketService().connect(user.id);
 
     notifyListeners();
   }
@@ -80,6 +91,9 @@ class UserProvider extends ChangeNotifier {
   }
 
   Future<void> clearUser() async {
+    // Disconnect from socket server
+    SocketService().disconnect();
+
     _user = null;
     _token = null;
 

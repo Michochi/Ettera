@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:async';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/app_theme.dart';
 import '../models/message_model.dart';
 import '../services/message_service.dart';
+import '../services/socket_service.dart';
 import '../providers/user_provider.dart';
 import '../utils/error_handler.dart';
 
@@ -19,6 +21,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final SocketService _socketService = SocketService();
+  Timer? _typingTimer;
+  bool _isTyping = false;
+  bool _isOtherUserTyping = false;
   bool _isLoading = false;
   bool _isLoadingMessages = false;
   bool _isSending = false;
@@ -33,6 +39,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
   void initState() {
     super.initState();
     _loadConversations();
+    _setupSocketListeners();
+
+    // Listen for typing
+    _messageController.addListener(_onTyping);
   }
 
   @override
@@ -85,7 +95,101 @@ class _MessagesScreenState extends State<MessagesScreen> {
     _searchController.dispose();
     _messageController.dispose();
     _scrollController.dispose();
+    _typingTimer?.cancel();
+    _socketService.offReceiveMessage();
+    _socketService.offTypingListeners();
     super.dispose();
+  }
+
+  /// Setup socket listeners for real-time updates
+  void _setupSocketListeners() {
+    // Listen for incoming messages
+    _socketService.onReceiveMessage((data) {
+      final newMessage = Message(
+        id: data['_id'] ?? '',
+        senderId: data['senderId'] ?? '',
+        receiverId: data['receiverId'] ?? '',
+        content: data['content'] ?? '',
+        timestamp: data['timestamp'] != null
+            ? DateTime.parse(data['timestamp'])
+            : DateTime.now(),
+        isRead: false,
+      );
+
+      // Only add if it's from the current conversation
+      if (_selectedConversation != null &&
+          (newMessage.senderId == _selectedConversation!.userId ||
+              newMessage.receiverId == _selectedConversation!.userId)) {
+        setState(() {
+          _messages.add(newMessage);
+        });
+
+        // Scroll to bottom
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (_scrollController.hasClients) {
+            _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          }
+        });
+      }
+
+      // Refresh conversations list
+      _loadConversations();
+    });
+
+    // Listen for typing indicators
+    _socketService.onUserTyping((userId) {
+      if (_selectedConversation != null &&
+          userId == _selectedConversation!.userId) {
+        setState(() {
+          _isOtherUserTyping = true;
+        });
+      }
+    });
+
+    _socketService.onUserStopTyping((userId) {
+      if (_selectedConversation != null &&
+          userId == _selectedConversation!.userId) {
+        setState(() {
+          _isOtherUserTyping = false;
+        });
+      }
+    });
+  }
+
+  /// Handle typing indicator
+  void _onTyping() {
+    if (_selectedConversation == null) return;
+
+    final userProvider = context.read<UserProvider>();
+    if (userProvider.user == null) return;
+
+    final text = _messageController.text;
+
+    if (text.isNotEmpty && !_isTyping) {
+      _isTyping = true;
+      _socketService.sendTyping(
+        senderId: userProvider.user!.id,
+        receiverId: _selectedConversation!.userId,
+      );
+    }
+
+    // Cancel previous timer
+    _typingTimer?.cancel();
+
+    // Stop typing after 2 seconds of inactivity
+    _typingTimer = Timer(const Duration(seconds: 2), () {
+      if (_isTyping) {
+        _isTyping = false;
+        _socketService.sendStopTyping(
+          senderId: userProvider.user!.id,
+          receiverId: _selectedConversation!.userId,
+        );
+      }
+    });
   }
 
   Future<void> _loadMessages(String otherUserId) async {
@@ -185,6 +289,18 @@ class _MessagesScreenState extends State<MessagesScreen> {
     final content = _messageController.text.trim();
     _messageController.clear();
 
+    // Stop typing indicator
+    if (_isTyping) {
+      _isTyping = false;
+      final userProvider = context.read<UserProvider>();
+      if (userProvider.user != null) {
+        _socketService.sendStopTyping(
+          senderId: userProvider.user!.id,
+          receiverId: _selectedConversation!.userId,
+        );
+      }
+    }
+
     setState(() {
       _isSending = true;
     });
@@ -222,6 +338,13 @@ class _MessagesScreenState extends State<MessagesScreen> {
           setState(() {
             _messages.add(newMessage);
           });
+
+          // Send via WebSocket for real-time delivery
+          _socketService.sendMessage(
+            senderId: userProvider.user!.id,
+            receiverId: _selectedConversation!.userId,
+            content: content,
+          );
 
           // Scroll to bottom
           Future.delayed(const Duration(milliseconds: 100), () {
@@ -1188,8 +1311,13 @@ class _MessagesScreenState extends State<MessagesScreen> {
               : ListView.builder(
                   controller: _scrollController,
                   padding: const EdgeInsets.all(20),
-                  itemCount: _messages.length,
+                  itemCount: _messages.length + (_isOtherUserTyping ? 1 : 0),
                   itemBuilder: (context, index) {
+                    // Show typing indicator as last item
+                    if (_isOtherUserTyping && index == _messages.length) {
+                      return _buildTypingIndicator();
+                    }
+
                     final message = _messages[index];
                     final isSentByMe = message.senderId == currentUserId;
                     return _buildMessageBubble(message, isSentByMe);
@@ -1503,6 +1631,69 @@ class _MessagesScreenState extends State<MessagesScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  /// Build typing indicator widget
+  Widget _buildTypingIndicator() {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.darkGray.withOpacity(0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildTypingDot(0),
+            const SizedBox(width: 4),
+            _buildTypingDot(1),
+            const SizedBox(width: 4),
+            _buildTypingDot(2),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Build animated typing dot
+  Widget _buildTypingDot(int index) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 600),
+      builder: (context, value, child) {
+        final delay = index * 0.2;
+        final animValue = (value + delay) % 1.0;
+        final scale = 0.5 + (0.5 * (1 - (animValue - 0.5).abs() * 2));
+
+        return Transform.scale(
+          scale: scale,
+          child: Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: AppTheme.darkGray.withOpacity(0.5),
+              shape: BoxShape.circle,
+            ),
+          ),
+        );
+      },
+      onEnd: () {
+        // Loop animation
+        if (_isOtherUserTyping && mounted) {
+          setState(() {});
+        }
+      },
     );
   }
 }
