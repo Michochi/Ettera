@@ -7,6 +7,7 @@ import '../widgets/app_theme.dart';
 import '../models/message_model.dart';
 import '../services/message_service.dart';
 import '../services/socket_service.dart';
+import '../services/notification_service.dart';
 import '../providers/user_provider.dart';
 import '../utils/error_handler.dart';
 
@@ -115,6 +116,36 @@ class _MessagesScreenState extends State<MessagesScreen> {
             : DateTime.now(),
         isRead: false,
       );
+
+      // Show notification for new message (if not on messages screen or conversation not selected)
+      final userProvider = context.read<UserProvider>();
+      final currentUserId = userProvider.user?.id ?? '';
+
+      // Only show notification if message is for current user and not in active conversation
+      if (newMessage.receiverId == currentUserId &&
+          (_selectedConversation == null ||
+              _selectedConversation!.userId != newMessage.senderId)) {
+        // Find sender name from conversations
+        final senderConversation = _conversations.firstWhere(
+          (conv) => conv.userId == newMessage.senderId,
+          orElse: () => Conversation(
+            id: newMessage.senderId,
+            userId: newMessage.senderId,
+            userName: 'Someone',
+            userPhoto: null,
+            lastMessage: '',
+            lastMessageTime: DateTime.now(),
+            unreadCount: 0,
+            isOnline: false,
+          ),
+        );
+
+        NotificationService().showMessageNotification(
+          senderName: senderConversation.userName,
+          messagePreview: newMessage.content,
+          senderPhoto: senderConversation.userPhoto,
+        );
+      }
 
       // Only add if it's from the current conversation
       if (_selectedConversation != null &&

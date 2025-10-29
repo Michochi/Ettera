@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'dart:math' as math;
 import '../models/profile_model.dart';
 import '../services/matching_service.dart';
+import '../services/notification_service.dart';
 import '../providers/user_provider.dart';
 import '../widgets/profile_card.dart';
 import '../widgets/custom_app_bar.dart';
@@ -386,6 +387,12 @@ class _BrowseScreenState extends State<BrowseScreen> {
 
       if (response.statusCode == 200 && response.data['isMatch'] == true) {
         print('Match detected! Showing dialog...'); // Debug log
+
+        // Show browser notification for match
+        NotificationService().showMatchNotification(
+          userName: profile.name,
+          userPhoto: profile.photoUrl,
+        );
 
         // Remove the profile first
         setState(() {

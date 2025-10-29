@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/user.dart';
 import '../services/socket_service.dart';
+import '../services/notification_service.dart';
 
 class UserProvider extends ChangeNotifier {
   User? _user;
@@ -31,6 +32,9 @@ class UserProvider extends ChangeNotifier {
 
         // Connect to socket server
         SocketService().connect(_user!.id);
+
+        // Initialize notifications
+        NotificationService().initialize();
 
         _isInitialized = true;
         notifyListeners();
@@ -66,6 +70,9 @@ class UserProvider extends ChangeNotifier {
 
     // Connect to socket server
     SocketService().connect(user.id);
+
+    // Initialize notifications
+    NotificationService().initialize();
 
     notifyListeners();
   }
