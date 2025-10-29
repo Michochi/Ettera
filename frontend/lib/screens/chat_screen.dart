@@ -206,11 +206,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 2,
-        shadowColor: AppTheme.darkGray.withOpacity(0.1),
+        shadowColor: Theme.of(context).brightness == Brightness.dark
+            ? Colors.black.withOpacity(0.3)
+            : AppTheme.darkGray.withOpacity(0.1),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppTheme.darkGray),
+          icon: Icon(Icons.arrow_back, color: AppTheme.getTextColor(context)),
           onPressed: () => Navigator.pop(context),
         ),
         title: Row(
@@ -394,10 +396,12 @@ class _ChatScreenState extends State<ChatScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppTheme.getSurfaceColor(context),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.darkGray.withOpacity(0.1),
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.black.withOpacity(0.3)
+                        : AppTheme.darkGray.withOpacity(0.1),
                     blurRadius: 10,
                     offset: const Offset(0, -4),
                   ),

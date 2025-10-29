@@ -564,9 +564,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              AppTheme.backgroundColor,
+              AppTheme.getBackgroundColor(context),
               AppTheme.primaryGold.withOpacity(0.05),
-              AppTheme.backgroundColor,
+              AppTheme.getBackgroundColor(context),
             ],
           ),
         ),
@@ -590,10 +590,12 @@ class _MessagesScreenState extends State<MessagesScreen> {
         Container(
           width: 380,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppTheme.getSurfaceColor(context),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.darkGray.withOpacity(0.1),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.black.withOpacity(0.3)
+                    : AppTheme.darkGray.withOpacity(0.1),
                 blurRadius: 10,
                 offset: const Offset(2, 0),
               ),
@@ -607,7 +609,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: AppTheme.darkGray.withOpacity(0.1),
+                      color: AppTheme.getTextColor(context).withOpacity(0.1),
                       width: 1,
                     ),
                   ),
@@ -620,14 +622,14 @@ class _MessagesScreenState extends State<MessagesScreen> {
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.darkGray,
+                        color: AppTheme.getTextColor(context),
                       ),
                     ),
                     const SizedBox(height: 12),
                     // Search bar
                     Container(
                       decoration: BoxDecoration(
-                        color: AppTheme.backgroundColor,
+                        color: AppTheme.getCardColor(context),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: TextField(
@@ -636,19 +638,25 @@ class _MessagesScreenState extends State<MessagesScreen> {
                         decoration: InputDecoration(
                           hintText: 'Search...',
                           hintStyle: TextStyle(
-                            color: AppTheme.darkGray.withOpacity(0.5),
+                            color: AppTheme.getTextColor(
+                              context,
+                            ).withOpacity(0.5),
                             fontSize: 14,
                           ),
                           prefixIcon: Icon(
                             Icons.search,
-                            color: AppTheme.darkGray.withOpacity(0.5),
+                            color: AppTheme.getTextColor(
+                              context,
+                            ).withOpacity(0.5),
                             size: 20,
                           ),
                           suffixIcon: _searchController.text.isNotEmpty
                               ? IconButton(
                                   icon: Icon(
                                     Icons.clear,
-                                    color: AppTheme.darkGray.withOpacity(0.5),
+                                    color: AppTheme.getTextColor(
+                                      context,
+                                    ).withOpacity(0.5),
                                     size: 20,
                                   ),
                                   onPressed: () {
@@ -721,7 +729,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.darkGray,
+                  color: AppTheme.getTextColor(context),
                   letterSpacing: -0.5,
                 ),
               ),
@@ -729,11 +737,13 @@ class _MessagesScreenState extends State<MessagesScreen> {
               // Search bar
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppTheme.getCardColor(context),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.darkGray.withOpacity(0.08),
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.black.withOpacity(0.3)
+                          : AppTheme.darkGray.withOpacity(0.08),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -745,14 +755,16 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   decoration: InputDecoration(
                     hintText: 'Search conversations...',
                     hintStyle: TextStyle(
-                      color: AppTheme.darkGray.withOpacity(0.5),
+                      color: AppTheme.getTextColor(context).withOpacity(0.5),
                     ),
                     prefixIcon: Icon(Icons.search, color: AppTheme.primaryGold),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
                             icon: Icon(
                               Icons.clear,
-                              color: AppTheme.darkGray.withOpacity(0.5),
+                              color: AppTheme.getTextColor(
+                                context,
+                              ).withOpacity(0.5),
                             ),
                             onPressed: () {
                               _searchController.clear();
@@ -937,10 +949,12 @@ class _MessagesScreenState extends State<MessagesScreen> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppTheme.getSurfaceColor(context),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.darkGray.withOpacity(0.1),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.black.withOpacity(0.3)
+                    : AppTheme.darkGray.withOpacity(0.1),
                 blurRadius: 4,
                 offset: const Offset(0, -2),
               ),
@@ -953,7 +967,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: AppTheme.backgroundColor,
+                      color: AppTheme.getCardColor(context),
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: TextField(
@@ -961,7 +975,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
                       decoration: InputDecoration(
                         hintText: 'Type a message...',
                         hintStyle: TextStyle(
-                          color: AppTheme.darkGray.withOpacity(0.5),
+                          color: AppTheme.getTextColor(
+                            context,
+                          ).withOpacity(0.5),
                         ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(
@@ -1102,7 +1118,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: AppTheme.darkGray.withOpacity(0.1),
+                color: AppTheme.getTextColor(context).withOpacity(0.1),
                 width: 1,
               ),
             ),
@@ -1171,7 +1187,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: AppTheme.darkGray,
+                              color: AppTheme.getTextColor(context),
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -1203,8 +1219,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
                       style: TextStyle(
                         fontSize: 14,
                         color: conversation.unreadCount > 0
-                            ? AppTheme.darkGray
-                            : AppTheme.darkGray.withOpacity(0.6),
+                            ? AppTheme.getTextColor(context)
+                            : AppTheme.getTextColor(context).withOpacity(0.6),
                         fontWeight: conversation.unreadCount > 0
                             ? FontWeight.w500
                             : FontWeight.normal,
@@ -1253,7 +1269,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: AppTheme.darkGray,
+              color: AppTheme.getTextColor(context),
             ),
           ),
           const SizedBox(height: 8),
@@ -1261,7 +1277,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
             'Choose a conversation from the list to start messaging',
             style: TextStyle(
               fontSize: 14,
-              color: AppTheme.darkGray.withOpacity(0.6),
+              color: AppTheme.getTextColor(context).withOpacity(0.6),
             ),
             textAlign: TextAlign.center,
           ),
@@ -1280,10 +1296,12 @@ class _MessagesScreenState extends State<MessagesScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppTheme.getSurfaceColor(context),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.darkGray.withOpacity(0.1),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.black.withOpacity(0.3)
+                    : AppTheme.darkGray.withOpacity(0.1),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
@@ -1332,7 +1350,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: AppTheme.darkGray,
+                        color: AppTheme.getTextColor(context),
                       ),
                     ),
                     if (_selectedConversation!.isOnline)
@@ -1351,7 +1369,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             'Active now',
                             style: TextStyle(
                               fontSize: 12,
-                              color: AppTheme.darkGray.withOpacity(0.6),
+                              color: AppTheme.getTextColor(
+                                context,
+                              ).withOpacity(0.6),
                             ),
                           ),
                         ],
@@ -1398,10 +1418,12 @@ class _MessagesScreenState extends State<MessagesScreen> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppTheme.getSurfaceColor(context),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.darkGray.withOpacity(0.1),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.black.withOpacity(0.3)
+                    : AppTheme.darkGray.withOpacity(0.1),
                 blurRadius: 4,
                 offset: const Offset(0, -2),
               ),
@@ -1412,7 +1434,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: AppTheme.backgroundColor,
+                    color: AppTheme.getCardColor(context),
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: TextField(
@@ -1420,7 +1442,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                     decoration: InputDecoration(
                       hintText: 'Type a message...',
                       hintStyle: TextStyle(
-                        color: AppTheme.darkGray.withOpacity(0.5),
+                        color: AppTheme.getTextColor(context).withOpacity(0.5),
                       ),
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(
@@ -1489,11 +1511,13 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   ],
                 )
               : null,
-          color: isSentByMe ? null : Colors.white,
+          color: isSentByMe ? null : AppTheme.getCardColor(context),
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.darkGray.withOpacity(0.1),
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.black.withOpacity(0.3)
+                  : AppTheme.darkGray.withOpacity(0.1),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -1506,7 +1530,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
               message.content,
               style: TextStyle(
                 fontSize: 15,
-                color: isSentByMe ? Colors.white : AppTheme.darkGray,
+                color: isSentByMe
+                    ? Colors.white
+                    : AppTheme.getTextColor(context),
               ),
             ),
             const SizedBox(height: 4),
@@ -1516,7 +1542,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 fontSize: 11,
                 color: isSentByMe
                     ? Colors.white.withOpacity(0.8)
-                    : AppTheme.darkGray.withOpacity(0.5),
+                    : AppTheme.getTextColor(context).withOpacity(0.5),
               ),
             ),
           ],

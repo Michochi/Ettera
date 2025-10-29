@@ -25,7 +25,7 @@ class StatisticWidget extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 16,
-            color: AppTheme.darkGray.withOpacity(0.8),
+            color: AppTheme.getTextColor(context).withOpacity(0.8),
           ),
         ),
       ],

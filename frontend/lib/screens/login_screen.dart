@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../providers/user_provider.dart';
 import '../models/user.dart';
+import '../widgets/app_theme.dart';
 import '../utils/error_handler.dart';
 import '../utils/validators.dart';
 
@@ -20,11 +21,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _authService = AuthService();
   bool loading = false;
   bool _obscurePassword = true;
-
-  // Define brand colors
-  static const Color primaryGold = Color(0xFFC4933F);
-  static const Color darkGray = Color(0xFF1D1D1D);
-  static const Color backgroundColor = Color(0xFFFFFBF5);
 
   void login() async {
     if (!_formKey.currentState!.validate()) return;
@@ -63,18 +59,27 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final inputDecoration = (String label, IconData icon) => InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(color: darkGray.withOpacity(0.7)),
-      prefixIcon: Icon(icon, color: primaryGold),
+      labelStyle: TextStyle(
+        color: AppTheme.getTextColor(context).withOpacity(0.7),
+      ),
+      prefixIcon: Icon(icon, color: AppTheme.primaryGold),
       filled: true,
-      fillColor: Colors.grey[50],
+      fillColor: isDark ? AppTheme.darkCard : Colors.grey[50],
       enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+        borderSide: BorderSide(
+          color: isDark
+              ? AppTheme.darkText.withOpacity(0.3)
+              : Colors.grey[300]!,
+          width: 1,
+        ),
         borderRadius: BorderRadius.circular(12),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: primaryGold, width: 2),
+        borderSide: BorderSide(color: AppTheme.primaryGold, width: 2),
         borderRadius: BorderRadius.circular(12),
       ),
       errorBorder: OutlineInputBorder(
@@ -96,9 +101,9 @@ class _LoginScreenState extends State<LoginScreen> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              backgroundColor,
-              primaryGold.withOpacity(0.1),
-              backgroundColor,
+              AppTheme.getBackgroundColor(context),
+              AppTheme.primaryGold.withOpacity(0.1),
+              AppTheme.getBackgroundColor(context),
             ],
           ),
         ),
@@ -118,17 +123,19 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(32),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppTheme.getCardColor(context),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: primaryGold.withOpacity(0.1),
+                          color: AppTheme.primaryGold.withOpacity(0.1),
                           blurRadius: 30,
                           offset: const Offset(0, 10),
                           spreadRadius: 0,
                         ),
                         BoxShadow(
-                          color: darkGray.withOpacity(0.05),
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.black.withOpacity(0.3)
+                              : AppTheme.darkGray.withOpacity(0.05),
                           blurRadius: 15,
                           offset: const Offset(0, 5),
                         ),
@@ -144,8 +151,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  primaryGold.withOpacity(0.1),
-                                  primaryGold.withOpacity(0.05),
+                                  AppTheme.primaryGold.withOpacity(0.1),
+                                  AppTheme.primaryGold.withOpacity(0.05),
                                 ],
                               ),
                               shape: BoxShape.circle,
@@ -162,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
-                              color: darkGray,
+                              color: AppTheme.getTextColor(context),
                               letterSpacing: -0.5,
                             ),
                           ),
@@ -171,7 +178,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             'Find your perfect match',
                             style: TextStyle(
                               fontSize: 16,
-                              color: darkGray.withOpacity(0.6),
+                              color: AppTheme.getTextColor(
+                                context,
+                              ).withOpacity(0.6),
                             ),
                           ),
                           const SizedBox(height: 40),
@@ -198,7 +207,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       _obscurePassword
                                           ? Icons.visibility_off
                                           : Icons.visibility,
-                                      color: primaryGold,
+                                      color: AppTheme.primaryGold,
                                     ),
                                     onPressed: () {
                                       setState(() {
@@ -218,10 +227,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               onPressed: loading ? null : login,
                               style:
                                   ElevatedButton.styleFrom(
-                                    backgroundColor: primaryGold,
+                                    backgroundColor: AppTheme.primaryGold,
                                     foregroundColor: Colors.white,
                                     elevation: 0,
-                                    shadowColor: primaryGold.withOpacity(0.3),
+                                    shadowColor: AppTheme.primaryGold
+                                        .withOpacity(0.3),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
@@ -257,14 +267,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                 "Don't have an account? ",
                                 style: TextStyle(
                                   fontSize: 15,
-                                  color: darkGray.withOpacity(0.7),
+                                  color: AppTheme.getTextColor(
+                                    context,
+                                  ).withOpacity(0.7),
                                 ),
                               ),
                               TextButton(
                                 onPressed: () =>
                                     Navigator.pushNamed(context, '/register'),
                                 style: TextButton.styleFrom(
-                                  foregroundColor: primaryGold,
+                                  foregroundColor: AppTheme.primaryGold,
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 8,
                                   ),

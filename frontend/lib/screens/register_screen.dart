@@ -30,7 +30,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // Use AppTheme colors
   static Color get primaryGold => AppTheme.primaryGold;
   static Color get darkGray => AppTheme.darkGray;
-  static Color get backgroundColor => AppTheme.backgroundColor;
 
   void register() async {
     if (!_formKey.currentState!.validate()) return;
@@ -98,14 +97,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   InputDecoration _buildInputDecoration(String label, IconData icon) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(color: darkGray.withOpacity(0.7)),
+      labelStyle: TextStyle(
+        color: AppTheme.getTextColor(context).withOpacity(0.7),
+      ),
       prefixIcon: Icon(icon, color: primaryGold),
       filled: true,
-      fillColor: Colors.grey[50],
+      fillColor: isDark ? AppTheme.darkCard : Colors.grey[50],
       enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+        borderSide: BorderSide(
+          color: isDark
+              ? AppTheme.darkText.withOpacity(0.3)
+              : Colors.grey[300]!,
+          width: 1,
+        ),
         borderRadius: BorderRadius.circular(12),
       ),
       focusedBorder: OutlineInputBorder(
@@ -133,9 +141,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              backgroundColor,
+              AppTheme.getBackgroundColor(context),
               primaryGold.withOpacity(0.1),
-              backgroundColor,
+              AppTheme.getBackgroundColor(context),
             ],
           ),
         ),
@@ -155,7 +163,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(32),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppTheme.getCardColor(context),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
@@ -165,7 +173,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           spreadRadius: 0,
                         ),
                         BoxShadow(
-                          color: darkGray.withOpacity(0.05),
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.black.withOpacity(0.3)
+                              : darkGray.withOpacity(0.05),
                           blurRadius: 15,
                           offset: const Offset(0, 5),
                         ),
@@ -199,7 +209,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
-                              color: darkGray,
+                              color: AppTheme.getTextColor(context),
                               letterSpacing: -0.5,
                             ),
                           ),
@@ -208,7 +218,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             'Start your journey to find love',
                             style: TextStyle(
                               fontSize: 15,
-                              color: darkGray.withOpacity(0.6),
+                              color: AppTheme.getTextColor(
+                                context,
+                              ).withOpacity(0.6),
                             ),
                           ),
                           const SizedBox(height: 32),
@@ -255,7 +267,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,
-                                        color: darkGray,
+                                        color: AppTheme.getTextColor(context),
                                       ),
                                     ),
                                   ],
@@ -264,9 +276,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: Colors.grey[50],
+                                  color:
+                                      Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? AppTheme.darkCard
+                                      : Colors.grey[50],
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: Colors.grey[300]!),
+                                  border: Border.all(
+                                    color:
+                                        Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? AppTheme.darkText.withOpacity(0.3)
+                                        : Colors.grey[300]!,
+                                  ),
                                 ),
                                 child: Row(
                                   children: [
@@ -354,9 +376,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 vertical: 18,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.grey[50],
+                                color:
+                                    Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? AppTheme.darkCard
+                                    : Colors.grey[50],
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: Colors.grey[300]!),
+                                border: Border.all(
+                                  color:
+                                      Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? AppTheme.darkText.withOpacity(0.3)
+                                      : Colors.grey[300]!,
+                                ),
                               ),
                               child: Row(
                                 children: [
@@ -371,7 +403,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           'Birthday',
                                           style: TextStyle(
                                             fontSize: 12,
-                                            color: darkGray.withOpacity(0.6),
+                                            color: AppTheme.getTextColor(
+                                              context,
+                                            ).withOpacity(0.6),
                                           ),
                                         ),
                                         const SizedBox(height: 2),
@@ -382,8 +416,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           style: TextStyle(
                                             fontSize: 16,
                                             color: selectedBirthday == null
-                                                ? darkGray.withOpacity(0.5)
-                                                : darkGray,
+                                                ? AppTheme.getTextColor(
+                                                    context,
+                                                  ).withOpacity(0.5)
+                                                : AppTheme.getTextColor(
+                                                    context,
+                                                  ),
                                             fontWeight: selectedBirthday == null
                                                 ? FontWeight.normal
                                                 : FontWeight.w500,
@@ -394,7 +432,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                   Icon(
                                     Icons.arrow_drop_down,
-                                    color: darkGray.withOpacity(0.5),
+                                    color: AppTheme.getTextColor(
+                                      context,
+                                    ).withOpacity(0.5),
                                   ),
                                 ],
                               ),
@@ -505,7 +545,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 "Already have an account? ",
                                 style: TextStyle(
                                   fontSize: 15,
-                                  color: darkGray.withOpacity(0.7),
+                                  color: AppTheme.getTextColor(
+                                    context,
+                                  ).withOpacity(0.7),
                                 ),
                               ),
                               TextButton(

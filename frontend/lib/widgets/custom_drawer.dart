@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import 'app_theme.dart';
+import 'theme_toggle_button.dart';
 
 /// Responsive drawer for mobile navigation
 class CustomDrawer extends StatelessWidget {
@@ -111,6 +112,12 @@ class CustomDrawer extends StatelessWidget {
                 Navigator.pop(context);
                 Navigator.pushNamed(context, '/profile');
               },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.brightness_6),
+              title: const Text('Dark Mode'),
+              trailing: const ThemeToggleSwitch(),
             ),
             const Divider(),
             ListTile(

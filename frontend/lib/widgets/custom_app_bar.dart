@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'auth_buttons.dart';
 import 'profile_dropdown.dart';
+import 'theme_toggle_button.dart';
 import '../providers/user_provider.dart';
 
 /// Reusable app bar with logo, centered navigation links, and auth-aware actions
@@ -22,7 +23,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         if (isDesktop) {
           // Desktop layout - full navigation
           return AppBar(
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
             elevation: 0,
             leadingWidth: 200,
             leading: Padding(
@@ -81,6 +82,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             actions:
                 actions ??
                 [
+                  const ThemeToggleButton(),
+                  const SizedBox(width: 8),
                   if (isLoggedIn)
                     const Padding(
                       padding: EdgeInsets.only(right: 16.0),
@@ -93,11 +96,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         } else {
           // Mobile/Tablet layout - hamburger menu
           return AppBar(
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
             elevation: 0,
             leading: Builder(
               builder: (context) => IconButton(
-                icon: const Icon(Icons.menu, color: Colors.black),
+                icon: Icon(
+                  Icons.menu,
+                  color: Theme.of(context).iconTheme.color,
+                ),
                 onPressed: () => Scaffold.of(context).openDrawer(),
               ),
             ),
@@ -113,6 +119,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             actions:
                 actions ??
                 [
+                  const ThemeToggleButton(),
+                  const SizedBox(width: 4),
                   if (isLoggedIn)
                     const Padding(
                       padding: EdgeInsets.only(right: 8.0),
@@ -122,7 +130,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     Padding(
                       padding: const EdgeInsets.only(right: 8.0),
                       child: IconButton(
-                        icon: const Icon(Icons.login, color: Colors.black),
+                        icon: Icon(
+                          Icons.login,
+                          color: Theme.of(context).iconTheme.color,
+                        ),
                         onPressed: () => Navigator.pushNamed(context, '/login'),
                       ),
                     ),

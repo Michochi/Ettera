@@ -199,12 +199,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Icon(
                 Icons.person_off,
                 size: 64,
-                color: darkGray.withOpacity(0.5),
+                color: AppTheme.getTextColor(context).withOpacity(0.5),
               ),
               const SizedBox(height: 16),
               Text(
                 'Please log in to view your profile',
-                style: TextStyle(fontSize: 18, color: darkGray),
+                style: TextStyle(
+                  fontSize: 18,
+                  color: AppTheme.getTextColor(context),
+                ),
               ),
               const SizedBox(height: 24),
               ElevatedButton(
@@ -228,7 +231,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: AppTheme.getBackgroundColor(context),
       appBar: const CustomAppBar(),
       drawer: const CustomDrawer(),
       body: SingleChildScrollView(
@@ -248,7 +251,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       style: TextStyle(
                         fontSize: isSmallScreen ? 28 : 36,
                         fontWeight: FontWeight.bold,
-                        color: darkGray,
+                        color: AppTheme.getTextColor(context),
                       ),
                     ),
                     if (!isEditing)
@@ -266,7 +269,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   'Manage your personal information',
                   style: TextStyle(
                     fontSize: 16,
-                    color: darkGray.withOpacity(0.7),
+                    color: AppTheme.getTextColor(context).withOpacity(0.7),
                   ),
                 ),
                 const SizedBox(height: 40),
@@ -314,11 +317,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Container(
                   padding: const EdgeInsets.all(30),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppTheme.getCardColor(context),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.black.withOpacity(0.3)
+                            : Colors.black.withOpacity(0.1),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -335,7 +340,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: darkGray,
+                            color: AppTheme.getTextColor(context),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -344,7 +349,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           enabled: isEditing,
                           decoration: InputDecoration(
                             labelText: 'Your name',
-                            labelStyle: TextStyle(color: darkGray),
+                            labelStyle: TextStyle(
+                              color: AppTheme.getTextColor(
+                                context,
+                              ).withOpacity(0.7),
+                            ),
                             enabledBorder: OutlineInputBorder(
                               borderSide: BorderSide(color: primaryGold),
                               borderRadius: BorderRadius.circular(10),
@@ -377,7 +386,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: darkGray,
+                            color: AppTheme.getTextColor(context),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -386,7 +395,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           enabled: isEditing,
                           decoration: InputDecoration(
                             labelText: 'Your email',
-                            labelStyle: TextStyle(color: darkGray),
+                            labelStyle: TextStyle(
+                              color: AppTheme.getTextColor(
+                                context,
+                              ).withOpacity(0.7),
+                            ),
                             enabledBorder: OutlineInputBorder(
                               borderSide: BorderSide(color: primaryGold),
                               borderRadius: BorderRadius.circular(10),
@@ -419,7 +432,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: darkGray,
+                            color: AppTheme.getTextColor(context),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -494,7 +507,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     selectedGender ?? 'Not specified',
                                     style: TextStyle(
                                       fontSize: 16,
-                                      color: darkGray,
+                                      color: AppTheme.getTextColor(context),
                                     ),
                                   ),
                                 ),
@@ -507,7 +520,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: darkGray,
+                            color: AppTheme.getTextColor(context),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -587,7 +600,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: darkGray,
+                            color: AppTheme.getTextColor(context),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -597,7 +610,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           maxLines: 4,
                           decoration: InputDecoration(
                             labelText: 'Tell us about yourself',
-                            labelStyle: TextStyle(color: darkGray),
+                            labelStyle: TextStyle(
+                              color: AppTheme.getTextColor(
+                                context,
+                              ).withOpacity(0.7),
+                            ),
                             enabledBorder: OutlineInputBorder(
                               borderSide: BorderSide(color: primaryGold),
                               borderRadius: BorderRadius.circular(10),
@@ -685,126 +702,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                       ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                // Account Settings Section
-                Container(
-                  padding: const EdgeInsets.all(30),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Account Settings',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: darkGray,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      ListTile(
-                        leading: Icon(Icons.lock, color: primaryGold),
-                        title: const Text('Change Password'),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          // TODO: Navigate to change password screen
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Change password coming soon!'),
-                            ),
-                          );
-                        },
-                      ),
-                      const Divider(),
-                      ListTile(
-                        leading: Icon(Icons.notifications, color: primaryGold),
-                        title: const Text('Notification Settings'),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          // TODO: Navigate to notification settings
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Notification settings coming soon!',
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      const Divider(),
-                      ListTile(
-                        leading: Icon(Icons.privacy_tip, color: primaryGold),
-                        title: const Text('Privacy Settings'),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          // TODO: Navigate to privacy settings
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Privacy settings coming soon!'),
-                            ),
-                          );
-                        },
-                      ),
-                      const Divider(),
-                      ListTile(
-                        leading: const Icon(
-                          Icons.delete_forever,
-                          color: Colors.red,
-                        ),
-                        title: const Text(
-                          'Delete Account',
-                          style: TextStyle(color: Colors.red),
-                        ),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Delete Account'),
-                              content: const Text(
-                                'Are you sure you want to delete your account? This action cannot be undone.',
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('Cancel'),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    // TODO: Implement account deletion
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Account deletion coming soon!',
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: const Text(
-                                    'Delete',
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ],
                   ),
                 ),
               ],

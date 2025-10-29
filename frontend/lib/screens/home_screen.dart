@@ -14,7 +14,6 @@ class HomeScreen extends StatelessWidget {
   // Use AppTheme colors
   static Color get primaryGold => AppTheme.primaryGold;
   static Color get darkGray => AppTheme.darkGray;
-  static Color get backgroundColor => AppTheme.backgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +23,7 @@ class HomeScreen extends StatelessWidget {
     final isLoggedIn = userProvider.user != null;
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: AppTheme.getBackgroundColor(context),
       appBar: const CustomAppBar(),
       drawer: const CustomDrawer(),
       body: SingleChildScrollView(
@@ -178,7 +177,7 @@ class HomeScreen extends StatelessWidget {
 
             // Features Section
             Container(
-              color: backgroundColor,
+              color: AppTheme.getBackgroundColor(context),
               padding: EdgeInsets.symmetric(
                 horizontal: isSmallScreen ? 20 : 60,
                 vertical: 60,
@@ -190,7 +189,7 @@ class HomeScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: isSmallScreen ? 28 : 36,
                       fontWeight: FontWeight.bold,
-                      color: darkGray,
+                      color: AppTheme.getTextColor(context),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -264,7 +263,7 @@ class HomeScreen extends StatelessWidget {
 
             // Statistics Section
             Container(
-              color: backgroundColor,
+              color: AppTheme.getBackgroundColor(context),
               padding: EdgeInsets.symmetric(
                 horizontal: isSmallScreen ? 20 : 60,
                 vertical: 60,

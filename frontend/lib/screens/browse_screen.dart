@@ -595,9 +595,9 @@ class _BrowseScreenState extends State<BrowseScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              AppTheme.backgroundColor,
+              AppTheme.getBackgroundColor(context),
               AppTheme.primaryGold.withOpacity(0.05),
-              AppTheme.backgroundColor,
+              AppTheme.getBackgroundColor(context),
             ],
           ),
         ),
@@ -986,7 +986,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
                   FloatingActionButton.large(
                     heroTag: 'pass',
                     onPressed: _handlePass,
-                    backgroundColor: Colors.white,
+                    backgroundColor: AppTheme.getCardColor(context),
                     elevation: 4,
                     child: Icon(Icons.close, color: Colors.red, size: 36),
                   ),

@@ -4,6 +4,7 @@ import '../providers/user_provider.dart';
 import '../services/matching_service.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/custom_drawer.dart';
+import '../widgets/app_theme.dart';
 import '../utils/error_handler.dart';
 
 class MatchesScreen extends StatefulWidget {
@@ -156,7 +157,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8F0),
+      backgroundColor: AppTheme.getBackgroundColor(context),
       appBar: const CustomAppBar(),
       drawer: const CustomDrawer(),
       body: _isLoading
@@ -168,30 +169,36 @@ class _MatchesScreenState extends State<MatchesScreen> {
   }
 
   Widget _buildEmptyState() {
+    final textColor = AppTheme.getTextColor(context);
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.favorite_border, size: 100, color: Colors.grey[400]),
+          Icon(
+            Icons.favorite_border,
+            size: 100,
+            color: textColor.withOpacity(0.4),
+          ),
           const SizedBox(height: 24),
           Text(
             'No matches yet',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Colors.grey[700],
+              color: textColor,
             ),
           ),
           const SizedBox(height: 12),
           Text(
             'Start swiping to find your matches!',
-            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+            style: TextStyle(fontSize: 16, color: textColor.withOpacity(0.7)),
           ),
           const SizedBox(height: 32),
           ElevatedButton(
             onPressed: () => Navigator.pushNamed(context, '/browse'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFC4933F),
+              backgroundColor: AppTheme.primaryGold,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               shape: RoundedRectangleBorder(
@@ -230,13 +237,18 @@ class _MatchesScreenState extends State<MatchesScreen> {
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
-                          color: Colors.grey[800],
+                          color: AppTheme.getTextColor(context),
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         '${_matches.length} ${_matches.length == 1 ? 'match' : 'matches'}',
-                        style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: AppTheme.getTextColor(
+                            context,
+                          ).withOpacity(0.7),
+                        ),
                       ),
                     ],
                   ),
@@ -290,21 +302,27 @@ class _MatchesScreenState extends State<MatchesScreen> {
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
-                          color: Colors.grey[300],
-                          child: const Icon(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? AppTheme.darkCard
+                              : Colors.grey[300],
+                          child: Icon(
                             Icons.person,
                             size: 60,
-                            color: Colors.grey,
+                            color: AppTheme.getTextColor(
+                              context,
+                            ).withOpacity(0.5),
                           ),
                         );
                       },
                     )
                   : Container(
-                      color: Colors.grey[300],
-                      child: const Icon(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? AppTheme.darkCard
+                          : Colors.grey[300],
+                      child: Icon(
                         Icons.person,
                         size: 60,
-                        color: Colors.grey,
+                        color: AppTheme.getTextColor(context).withOpacity(0.5),
                       ),
                     ),
             ),
@@ -330,7 +348,10 @@ class _MatchesScreenState extends State<MatchesScreen> {
                   if (bio.isNotEmpty)
                     Text(
                       bio,
-                      style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppTheme.getTextColor(context).withOpacity(0.7),
+                      ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -342,7 +363,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
                         child: ElevatedButton(
                           onPressed: () => _openChat(userId, name),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFC4933F),
+                            backgroundColor: AppTheme.primaryGold,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             shape: RoundedRectangleBorder(

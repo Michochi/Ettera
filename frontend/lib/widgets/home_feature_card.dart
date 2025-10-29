@@ -16,14 +16,18 @@ class HomeFeatureCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(30),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.95),
+        color: AppTheme.getCardColor(context),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: isDark
+                ? Colors.black.withOpacity(0.4)
+                : Colors.black.withOpacity(0.2),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -45,7 +49,7 @@ class HomeFeatureCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: AppTheme.darkGray,
+              color: AppTheme.getTextColor(context),
             ),
             textAlign: TextAlign.center,
           ),
@@ -54,7 +58,7 @@ class HomeFeatureCard extends StatelessWidget {
             description,
             style: TextStyle(
               fontSize: 16,
-              color: AppTheme.darkGray.withOpacity(0.8),
+              color: AppTheme.getTextColor(context).withOpacity(0.8),
               height: 1.5,
             ),
             textAlign: TextAlign.center,

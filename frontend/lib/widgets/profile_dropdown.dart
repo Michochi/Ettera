@@ -29,7 +29,11 @@ class ProfileDropdown extends StatelessWidget {
                 ? Icon(Icons.person, size: 22, color: AppTheme.primaryGold)
                 : null,
           ),
-          Icon(Icons.arrow_drop_down, color: AppTheme.darkGray, size: 24),
+          Icon(
+            Icons.arrow_drop_down,
+            color: AppTheme.getTextColor(context),
+            size: 24,
+          ),
         ],
       ),
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -59,7 +63,7 @@ class ProfileDropdown extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: AppTheme.darkGray,
+                        color: AppTheme.getTextColor(context),
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -67,7 +71,7 @@ class ProfileDropdown extends StatelessWidget {
                       user.email,
                       style: TextStyle(
                         fontSize: 12,
-                        color: AppTheme.darkGray.withOpacity(0.6),
+                        color: AppTheme.getTextColor(context).withOpacity(0.6),
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
