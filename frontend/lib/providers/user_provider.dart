@@ -4,6 +4,8 @@ import 'dart:convert';
 import '../models/user.dart';
 import '../services/socket_service.dart';
 import '../services/notification_service.dart';
+import '../services/message_service.dart';
+import '../services/auth_service.dart';
 
 class UserProvider extends ChangeNotifier {
   User? _user;
@@ -30,23 +32,59 @@ class UserProvider extends ChangeNotifier {
         final userMap = json.decode(userJson) as Map<String, dynamic>;
         _user = User.fromJson(userMap);
 
+        // Validate token by attempting to fetch profile
+        final isValid = await _validateToken();
+
+        if (!isValid) {
+          // Token is invalid or user doesn't exist anymore - clear cache
+          print('⚠️ Cached token invalid or user not found. Clearing cache...');
+          await clearUser();
+          _isInitialized = true;
+          notifyListeners();
+          return;
+        }
+
         // Connect to socket server
         SocketService().connect(_user!.id);
 
         // Initialize notifications
         NotificationService().initialize();
 
+        // Set up global message listener for notifications
+        _setupGlobalMessageListener();
+
         _isInitialized = true;
         notifyListeners();
-        print('User loaded from preferences: ${_user?.email}');
+        print('✅ User loaded from preferences: ${_user?.email}');
       } else {
         _isInitialized = true;
         notifyListeners();
       }
     } catch (e) {
-      print('Error loading user from preferences: $e');
+      print('❌ Error loading user from preferences: $e');
+      // Clear cache on error
+      await clearUser();
       _isInitialized = true;
       notifyListeners();
+    }
+  }
+
+  /// Validate if the cached token is still valid
+  Future<bool> _validateToken() async {
+    if (_token == null) return false;
+
+    try {
+      final authService = AuthService();
+      // Try to fetch profile - if it fails, token is invalid
+      final response = await authService.updateProfile(
+        token: _token!,
+        name: _user!.name,
+        email: _user!.email,
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      print('❌ Token validation failed: $e');
+      return false;
     }
   }
 
@@ -74,7 +112,61 @@ class UserProvider extends ChangeNotifier {
     // Initialize notifications
     NotificationService().initialize();
 
+    // Set up global message listener for notifications
+    _setupGlobalMessageListener();
+
     notifyListeners();
+  }
+
+  /// Set up global message listener for browser notifications
+  void _setupGlobalMessageListener() {
+    SocketService().onReceiveMessage((data) async {
+      // Show notification when message is received
+      final senderId = data['senderId'] as String;
+      final content = data['content'] as String;
+
+      // Try to get sender name from conversations
+      try {
+        if (_token != null) {
+          final messageService = MessageService();
+          final response = await messageService.getConversations(
+            token: _token!,
+          );
+
+          if (response.statusCode == 200) {
+            final conversations = response.data as List;
+
+            // Find the sender in conversations
+            final sender = conversations.firstWhere(
+              (conv) => conv['userId'] == senderId,
+              orElse: () => {'userName': 'Someone'},
+            );
+
+            final senderName = sender['userName'] ?? 'Someone';
+            final senderPhoto = sender['userPhoto'];
+
+            NotificationService().showMessageNotification(
+              senderName: senderName,
+              messagePreview: content.length > 50
+                  ? '${content.substring(0, 50)}...'
+                  : content,
+              senderPhoto: senderPhoto,
+            );
+
+            print('📬 Message from $senderName: $content');
+          }
+        }
+      } catch (e) {
+        // Fallback if we can't get sender info
+        NotificationService().showMessageNotification(
+          senderName: 'New Message',
+          messagePreview: content.length > 50
+              ? '${content.substring(0, 50)}...'
+              : content,
+        );
+        print('📬 Global message received: $e');
+      }
+    });
   }
 
   void updateUser(User user) {
