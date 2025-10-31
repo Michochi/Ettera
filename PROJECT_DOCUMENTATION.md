@@ -682,9 +682,9 @@ Check SharedPreferences permissions
 
 ### Submission Details
 
-- **Deployed App**: [URL to be provided]
+- **Deployed App**: https://eterra-fgfvr9h34-michochis-projects.vercel.app/#/home
 - **Git Repository**: https://github.com/Michochi/Ettera
-- **Video Demo**: [URL to be provided]
+- **Video Demo**: https://youtu.be/FMUHxaFNuds
 
 ---
 
